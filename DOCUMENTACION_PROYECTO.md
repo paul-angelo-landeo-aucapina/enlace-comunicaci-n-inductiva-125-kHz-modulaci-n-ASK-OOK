@@ -131,10 +131,32 @@ Ambos esquemáticos cuentan con **0 errores de Reglas Eléctricas (ERC)** en KiC
 
 ---
 
-## 6. Firmware Receptor ESP32 (`firmware_rx/`)
+## 6. Firmwares del Enlace Inductivo (`firmware_rx/` y `firmware_tx/`)
 
-Se implementó el firmware receptor optimizado para **Arduino IDE** en el directorio [`firmware_rx/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/firmware_rx/firmware_rx.ino):
+Se desarrollaron e integraron ambos firmwares optimizados para **ESP32 DevKitC** bajo el entorno **Arduino IDE / ESP-IDF**, garantizando una arquitectura de modulación y demodulación simétrica y robusta a $250\text{ bps}$:
 
+### 6.1 Firmware Transmisor ESP32 (`firmware_tx/`)
+Ubicado en [`firmware_tx/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/firmware_tx/firmware_tx.ino):
+* **Pin de Modulación:** `GPIO18` (controla por gating el pin 4 `~RST` del oscilador TLC555).
+* **Indicador de Actividad:** `GPIO2` (LED onboard, se enciende durante la transmisión).
+* **Motor de Temporización de Alta Precisión:** Utiliza el temporizador de hardware de microsegundos de ESP-IDF (`esp_timer`) configurado a $500\text{ Hz}$ ($T_{half} = 2000\ \mu\text{s}$). Ejecución no bloqueante que previene el jitter y no satura los timers de FreeRTOS.
+* **Codificación de Línea:** Manchester IEEE 802.3 (Bit `'0'` $\rightarrow$ LOW luego HIGH; Bit `'1'` $\rightarrow$ HIGH luego LOW).
+* **Constructor de Tramas (`PacketBuilder`):**
+  1. **Preámbulo:** 2 bytes `0xAA, 0xAA` ($16$ transiciones para clock recovery del receptor).
+  2. **Delimitador de Inicio (SFD):** `0x7E` (`01111110`).
+  3. **Longitud:** 1 byte ($1 \le N \le 32$).
+  4. **Payload:** $N$ bytes de datos binarios o texto ASCII.
+  5. **Verificación:** CRC-8 (Polinomio $0\text{x}07$, Init $0\text{x}00$) calculado sobre $[Longitud] + [Payload]$.
+* **Consola Interactiva USB Serial (115200 baud):**
+  * `send <texto>`: Transmite una trama arbitraria con el texto especificado.
+  * `ping`: Transmite paquete de prueba estándar `"PING"`.
+  * `bench <N>`: Emite una ráfaga de $N$ paquetes consecutivos con intervalo de guarda para pruebas de PER (*Packet Error Rate*).
+  * `carrier on|off`: Activa la portadora en `GPIO18` de forma continua a $125\text{ kHz}$ para sintonía con osciloscopio en el banco de trabajo.
+  * `beacon on|off`: Baliza periódica de telemetría cada $3\text{ s}$.
+  * `status`: Métricas de hardware y paquetes transmitidos.
+
+### 6.2 Firmware Receptor ESP32 (`firmware_rx/`)
+Ubicado en [`firmware_rx/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/firmware_rx/firmware_rx.ino):
 * **Velocidad de Enlace:** $250\text{ bps}$ ($T_{bit} = 4000\ \mu\text{s}$, $T_{half} = 2000\ \mu\text{s}$). Adecuado para la constante de tiempo $\tau = R_7 C_6 = 1.0\text{ ms}$ del demodulador analógico.
 * **Codificación de Línea:** Manchester IEEE 802.3 (Flanco ascendente en punto medio = `'0'`, descendente = `'1'`).
 * **Entrada de Datos:** Pin `GPIO19` (conectado al comparador LM393 mediante interrupción `CHANGE`).
@@ -142,13 +164,17 @@ Se implementó el firmware receptor optimizado para **Arduino IDE** en el direct
   * Filtro anti-glitch para transitorios $< 600\ \mu\text{s}$.
   * Ventana de aceptación $\pm 25\%$ ($T_{half}: 1400 - 2600\ \mu\text{s}$, $T_{bit}: 2800 - 5200\ \mu\text{s}$).
   * Timeout automático de silencio a los $14\text{ ms}$ ($> 3\times T_{bit}$).
-* **Estructura de Trama:**
-  1. **Preámbulo:** `0xAA` (`10101010`) para sincronización de reloj y máquina de estados.
-  2. **Delimitador de Inicio (SFD):** `0x7E` (`01111110`).
+* **Estructura de Trama Esperada:**
+  1. **Preámbulo:** `0xAA` para sincronización de reloj y máquina de estados.
+  2. **Delimitador de Inicio (SFD):** `0x7E`.
   3. **Longitud:** 1 byte ($1 \le N \le 32$).
   4. **Carga Útil (Payload):** $N$ bytes.
-  5. **Verificación:** CRC-8 (Polinomio $0\text{x}07$, $x^8 + x^2 + x + 1$).
-* **Suite de Pruebas Automatizada:** [`tests/test_rx_decoder.cpp`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/test_rx_decoder.cpp). Verificada con inyección de jitter y ruido parásito.
+  5. **Verificación:** CRC-8 (Polinomio $0\text{x}07$).
+
+### 6.3 Suites de Pruebas Automatizadas y Loopback (`tests/`)
+* [`tests/test_rx_decoder.cpp`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/test_rx_decoder.cpp): Valida la decodificación Manchester, filtrado de transitorios espurios y CRC-8 frente a jitter inyectado.
+* [`tests/test_tx_encoder.cpp`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/test_tx_encoder.cpp): Valida el empaquetado de tramas, codificación de símbolos IEEE 802.3 y ejecuta una prueba **Closed-Loop Loopback** conectando la salida del transmisor a la entrada del receptor con 100% de tramas decodificadas sin error de CRC.
+* Compilación y ejecución de toda la suite mediante [`tests/Makefile`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/Makefile): `make test`.
 
 ---
 

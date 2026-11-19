@@ -128,3 +128,21 @@ Ambos esquemáticos cuentan con **0 errores de Reglas Eléctricas (ERC)** en KiC
   * Esquemático KiCad: [`circuito_rx/circuito_rx.kicad_sch`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/circuito_rx/circuito_rx.kicad_sch)
   * Plano exportado en PDF: [`circuito_rx/circuito_rx.pdf`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/circuito_rx/circuito_rx.pdf)
   * Proyecto: [`circuito_rx/circuito_rx.kicad_pro`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/circuito_rx/circuito_rx.kicad_pro)
+
+---
+
+## 6. Firmwares de Comunicación Inductiva (`firmware_tx/` y `firmware_rx/`)
+
+El enlace cuenta con firmwares modulares para ESP32 DevKitC en C++ / Arduino / ESP-IDF:
+
+* **Transmisor (`firmware_tx/`):**
+  * Modulación OOK sobre `GPIO18` (gating pin `~RST` TLC555) a $250\text{ bps}$ Manchester IEEE 802.3.
+  * Temporización de microsegundos no bloqueante mediante hardware timer `esp_timer` a $500\text{ Hz}$ ($2000\ \mu\text{s}$).
+  * Ensamblador de paquetes con preámbulo, delimitador SFD (`0x7E`), longitud ($1..32$) y CRC-8 (polinomio $0\text{x}07$).
+  * Consola Serial interactiva (115200 baud): `send <msg>`, `ping`, `carrier on|off` (calibración en osciloscopio), `bench <N>`, `beacon on|off` y `status`.
+* **Receptor (`firmware_rx/`):**
+  * Captura por interrupción de flancos en `GPIO19` desde comparador LM393.
+  * Decodificador Manchester con recuperación de reloj, filtrado anti-glitch ($< 600\ \mu\text{s}$), tolerancia a jitter $\pm 25\%$ y timeout de silencio ($14\text{ ms}$).
+  * Verificación CRC-8 y volcado ASCII/HEX por puerto Serial.
+* **Pruebas Automatizadas y Loopback (`tests/`):**
+  * Ejecutables con `make test` desde el directorio [`tests/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/): prueba unitaria de receptor y prueba de loopback cerrado TX $\rightarrow$ RX con 100% de tramas decodificadas sin error.
