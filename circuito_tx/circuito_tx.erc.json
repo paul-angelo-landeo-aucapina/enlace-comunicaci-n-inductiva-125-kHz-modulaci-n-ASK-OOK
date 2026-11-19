@@ -1,0 +1,742 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-11-18T21:16:57",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.8",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/4fba313c-eaf3-4f0a-aa9e-cdc7cd1abb5e",
+            "violations": [
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Connector_PinHeader_2.54mm'",
+                    "items": [
+                        {
+                            "description": "Símbolo J_ESP32 [ESP32_DevKitC_TX]",
+                            "pos": {
+                                "x": 38.1,
+                                "y": 50.8
+                            },
+                            "uuid": "7fb5d01f-7145-45a9-a5ad-bed7aea9d5c6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Connector_Generic'",
+                    "items": [
+                        {
+                            "description": "Símbolo J_ESP32 [ESP32_DevKitC_TX]",
+                            "pos": {
+                                "x": 38.1,
+                                "y": 50.8
+                            },
+                            "uuid": "7fb5d01f-7145-45a9-a5ad-bed7aea9d5c6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR01 [+5V]",
+                            "pos": {
+                                "x": 38.1,
+                                "y": 81.28
+                            },
+                            "uuid": "c8c18978-5f96-4779-b090-d953d83b6837"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Capacitor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo C4 [C]",
+                            "pos": {
+                                "x": 38.1,
+                                "y": 88.9
+                            },
+                            "uuid": "38fea553-a809-4d22-ab10-3652ae9aefa4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo C4 [C]",
+                            "pos": {
+                                "x": 38.1,
+                                "y": 88.9
+                            },
+                            "uuid": "38fea553-a809-4d22-ab10-3652ae9aefa4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR02 [GND]",
+                            "pos": {
+                                "x": 38.1,
+                                "y": 96.52
+                            },
+                            "uuid": "56fa34ba-9aa4-491c-a528-1a456bb88b28"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR_5V [+5V]",
+                            "pos": {
+                                "x": 49.53,
+                                "y": 60.96
+                            },
+                            "uuid": "fb3e0166-dffa-441d-b6cd-0b93118b6b09"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Capacitor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo C5 [C_Polarized]",
+                            "pos": {
+                                "x": 50.8,
+                                "y": 88.9
+                            },
+                            "uuid": "1e685799-7573-4698-a4fe-6fae06788a98"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo C5 [C_Polarized]",
+                            "pos": {
+                                "x": 50.8,
+                                "y": 88.9
+                            },
+                            "uuid": "1e685799-7573-4698-a4fe-6fae06788a98"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR_GND [GND]",
+                            "pos": {
+                                "x": 55.88,
+                                "y": 50.8
+                            },
+                            "uuid": "4f4d3cdb-dc59-4857-b4b5-9001735f4732"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Resistor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo R3 [R]",
+                            "pos": {
+                                "x": 78.74,
+                                "y": 109.22
+                            },
+                            "uuid": "4b51e794-3236-4fc9-9014-607ca698eb29"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo R3 [R]",
+                            "pos": {
+                                "x": 78.74,
+                                "y": 109.22
+                            },
+                            "uuid": "4b51e794-3236-4fc9-9014-607ca698eb29"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR07 [GND]",
+                            "pos": {
+                                "x": 78.74,
+                                "y": 118.11
+                            },
+                            "uuid": "9d7f8fd0-cde4-478f-85f0-93388bca11bd"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR08 [+5V]",
+                            "pos": {
+                                "x": 83.82,
+                                "y": 67.31
+                            },
+                            "uuid": "3130fefe-3fe2-4319-88e9-d8bf6033681b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Resistor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo R1 [R]",
+                            "pos": {
+                                "x": 83.82,
+                                "y": 76.2
+                            },
+                            "uuid": "9d5017ca-6794-460f-be93-fec2e318e3fc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo R1 [R]",
+                            "pos": {
+                                "x": 83.82,
+                                "y": 76.2
+                            },
+                            "uuid": "9d5017ca-6794-460f-be93-fec2e318e3fc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Resistor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo R2 [R]",
+                            "pos": {
+                                "x": 83.82,
+                                "y": 111.76
+                            },
+                            "uuid": "d8503220-a4ce-4d51-8891-5f3bb85c5d11"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo R2 [R]",
+                            "pos": {
+                                "x": 83.82,
+                                "y": 111.76
+                            },
+                            "uuid": "d8503220-a4ce-4d51-8891-5f3bb85c5d11"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Potentiometer_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo RV1 [R_Potentiometer]",
+                            "pos": {
+                                "x": 83.82,
+                                "y": 134.62
+                            },
+                            "uuid": "41b7c294-7e2b-40c1-bf00-978b241cb606"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo RV1 [R_Potentiometer]",
+                            "pos": {
+                                "x": 83.82,
+                                "y": 134.62
+                            },
+                            "uuid": "41b7c294-7e2b-40c1-bf00-978b241cb606"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Capacitor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo C2 [C]",
+                            "pos": {
+                                "x": 90.17,
+                                "y": 78.74
+                            },
+                            "uuid": "c0382d71-47f1-4a0d-b6a6-be8de7c8b56e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo C2 [C]",
+                            "pos": {
+                                "x": 90.17,
+                                "y": 78.74
+                            },
+                            "uuid": "c0382d71-47f1-4a0d-b6a6-be8de7c8b56e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR06 [GND]",
+                            "pos": {
+                                "x": 90.17,
+                                "y": 87.63
+                            },
+                            "uuid": "5324e0c3-7431-4aa4-b3fc-c2fedf40225e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Capacitor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo C1 [C]",
+                            "pos": {
+                                "x": 93.98,
+                                "y": 134.62
+                            },
+                            "uuid": "1dc37440-8048-4557-88c2-2ed62103c5c4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo C1 [C]",
+                            "pos": {
+                                "x": 93.98,
+                                "y": 134.62
+                            },
+                            "uuid": "1dc37440-8048-4557-88c2-2ed62103c5c4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR09 [GND]",
+                            "pos": {
+                                "x": 93.98,
+                                "y": 143.51
+                            },
+                            "uuid": "d0637ade-6b3c-48c9-b2a9-0d2ac9cdd1df"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Package_DIP'",
+                    "items": [
+                        {
+                            "description": "Símbolo U1 [TLC555xP]",
+                            "pos": {
+                                "x": 101.6,
+                                "y": 101.6
+                            },
+                            "uuid": "c31a0a43-2a54-4ada-b62f-3f385cb5e136"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Timer'",
+                    "items": [
+                        {
+                            "description": "Símbolo U1 [TLC555xP]",
+                            "pos": {
+                                "x": 101.6,
+                                "y": 101.6
+                            },
+                            "uuid": "c31a0a43-2a54-4ada-b62f-3f385cb5e136"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR03 [GND]",
+                            "pos": {
+                                "x": 101.6,
+                                "y": 116.84
+                            },
+                            "uuid": "aa3802a2-5631-4ecb-bd87-1e8daa51116e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR04 [+5V]",
+                            "pos": {
+                                "x": 104.14,
+                                "y": 86.36
+                            },
+                            "uuid": "fad756d6-b2d3-404e-ba3c-2ae6201268f2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Capacitor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo C3 [C]",
+                            "pos": {
+                                "x": 111.76,
+                                "y": 80.01
+                            },
+                            "uuid": "e7e483ed-533a-41ef-89e4-5e0bb5f90347"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo C3 [C]",
+                            "pos": {
+                                "x": 111.76,
+                                "y": 80.01
+                            },
+                            "uuid": "e7e483ed-533a-41ef-89e4-5e0bb5f90347"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR05 [GND]",
+                            "pos": {
+                                "x": 111.76,
+                                "y": 88.9
+                            },
+                            "uuid": "73297908-43c1-447e-b42a-1157144b447e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR10 [GND]",
+                            "pos": {
+                                "x": 137.16,
+                                "y": 109.22
+                            },
+                            "uuid": "963a096e-7252-4643-9b3c-287b39b600dc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR12 [+5V]",
+                            "pos": {
+                                "x": 152.4,
+                                "y": 86.36
+                            },
+                            "uuid": "3d3295e5-826c-42db-b1a2-20bd74ae3a38"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Package_DIP'",
+                    "items": [
+                        {
+                            "description": "Símbolo U2 [TC4427xOA]",
+                            "pos": {
+                                "x": 152.4,
+                                "y": 101.6
+                            },
+                            "uuid": "1e0e859e-b0ce-4fa0-88d8-08de9f7171e7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Driver_FET'",
+                    "items": [
+                        {
+                            "description": "Símbolo U2 [TC4427xOA]",
+                            "pos": {
+                                "x": 152.4,
+                                "y": 101.6
+                            },
+                            "uuid": "1e0e859e-b0ce-4fa0-88d8-08de9f7171e7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR11 [GND]",
+                            "pos": {
+                                "x": 152.4,
+                                "y": 116.84
+                            },
+                            "uuid": "f2d769ab-7891-40ae-8cab-a903dda2bbf8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Resistor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo R4 [R]",
+                            "pos": {
+                                "x": 177.8,
+                                "y": 99.06
+                            },
+                            "uuid": "5c331889-0830-4bd4-a3f8-f23f9068fe69"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo R4 [R]",
+                            "pos": {
+                                "x": 177.8,
+                                "y": 99.06
+                            },
+                            "uuid": "5c331889-0830-4bd4-a3f8-f23f9068fe69"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Capacitor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo C6 [C]",
+                            "pos": {
+                                "x": 195.58,
+                                "y": 93.98
+                            },
+                            "uuid": "eef033b1-7781-4097-a8be-dc552e0603bb"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo C6 [C]",
+                            "pos": {
+                                "x": 195.58,
+                                "y": 93.98
+                            },
+                            "uuid": "eef033b1-7781-4097-a8be-dc552e0603bb"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Capacitor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo C7 [C]",
+                            "pos": {
+                                "x": 195.58,
+                                "y": 104.14
+                            },
+                            "uuid": "fbe6ddfc-d62f-4bb3-84ea-93affe329f51"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo C7 [C]",
+                            "pos": {
+                                "x": 195.58,
+                                "y": 104.14
+                            },
+                            "uuid": "fbe6ddfc-d62f-4bb3-84ea-93affe329f51"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de huellas 'Inductor_THT'",
+                    "items": [
+                        {
+                            "description": "Símbolo L1 [L]",
+                            "pos": {
+                                "x": 215.9,
+                                "y": 114.3
+                            },
+                            "uuid": "b906322d-3c89-4874-8e18-d3b203ddb5b3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'Device'",
+                    "items": [
+                        {
+                            "description": "Símbolo L1 [L]",
+                            "pos": {
+                                "x": 215.9,
+                                "y": 114.3
+                            },
+                            "uuid": "b906322d-3c89-4874-8e18-d3b203ddb5b3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "La configuración actual no incluye la biblioteca de símbolos 'power'",
+                    "items": [
+                        {
+                            "description": "Símbolo #PWR13 [GND]",
+                            "pos": {
+                                "x": 215.9,
+                                "y": 123.19
+                            },
+                            "uuid": "19f0d163-20c8-4c6b-bd28-3b3a72bfa782"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                }
+            ]
+        }
+    ],
+    "source": "circuito_tx.kicad_sch"
+}

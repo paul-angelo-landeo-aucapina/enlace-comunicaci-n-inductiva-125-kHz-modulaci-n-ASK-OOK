@@ -1,0 +1,158 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-11-18T19:56:18",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.8",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/ac6bad11-29f8-4aef-b0a1-340a1d503af8",
+            "violations": [
+                {
+                    "description": "No se ha encontrado el símbolo 'ESP32_DevKitC_RX' en la biblioteca de símbolos 'Connector_Generic'",
+                    "items": [
+                        {
+                            "description": "Símbolo J_ESP32 [ESP32_DevKitC_RX]",
+                            "pos": {
+                                "x": 38.1,
+                                "y": 50.8
+                            },
+                            "uuid": "f771b9ee-8225-4bbc-8270-c8ead030d5c8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "El símbolo 'MCP6002-xP' no coincide con la copia en la biblioteca 'Amplifier_Operational'",
+                    "items": [
+                        {
+                            "description": "Símbolo U2 [MCP6002-xP]",
+                            "pos": {
+                                "x": 38.1,
+                                "y": 88.9
+                            },
+                            "uuid": "1895f869-8e26-4e69-82c7-71755818f0e4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_mismatch"
+                },
+                {
+                    "description": "El símbolo 'LM393' no coincide con la copia en la biblioteca 'Comparator'",
+                    "items": [
+                        {
+                            "description": "Símbolo U3 [LM393]",
+                            "pos": {
+                                "x": 38.1,
+                                "y": 127.0
+                            },
+                            "uuid": "9eeb8c26-fab0-40b4-a9b5-ee8a8e0fdbe9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_mismatch"
+                },
+                {
+                    "description": "El símbolo 'LM393' no coincide con la copia en la biblioteca 'Comparator'",
+                    "items": [
+                        {
+                            "description": "Símbolo U3 [LM393]",
+                            "pos": {
+                                "x": 46.99,
+                                "y": 157.48
+                            },
+                            "uuid": "0ec72a35-a267-40dd-8608-274452e87694"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_mismatch"
+                },
+                {
+                    "description": "El símbolo 'MCP6002-xP' no coincide con la copia en la biblioteca 'Amplifier_Operational'",
+                    "items": [
+                        {
+                            "description": "Símbolo U2 [MCP6002-xP]",
+                            "pos": {
+                                "x": 139.7,
+                                "y": 101.6
+                            },
+                            "uuid": "cf34e017-556d-4bdb-9911-de56cd3a1972"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_mismatch"
+                },
+                {
+                    "description": "El símbolo 'MCP6002-xP' no coincide con la copia en la biblioteca 'Amplifier_Operational'",
+                    "items": [
+                        {
+                            "description": "Símbolo U2 [MCP6002-xP]",
+                            "pos": {
+                                "x": 177.8,
+                                "y": 101.6
+                            },
+                            "uuid": "6cb0775c-4fa8-4982-b221-63ad22a0d953"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_mismatch"
+                },
+                {
+                    "description": "El símbolo 'BAT85' no coincide con la copia en la biblioteca 'Diode'",
+                    "items": [
+                        {
+                            "description": "Símbolo D1 [BAT85]",
+                            "pos": {
+                                "x": 213.36,
+                                "y": 101.6
+                            },
+                            "uuid": "182ddcbc-3e29-45e1-9e7f-120623739e4c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_mismatch"
+                },
+                {
+                    "description": "El símbolo 'LM393' no coincide con la copia en la biblioteca 'Comparator'",
+                    "items": [
+                        {
+                            "description": "Símbolo U3 [LM393]",
+                            "pos": {
+                                "x": 257.81,
+                                "y": 101.6
+                            },
+                            "uuid": "9533cb21-2ca2-45ae-8498-34608992b189"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_mismatch"
+                }
+            ]
+        }
+    ],
+    "source": "circuito_rx.kicad_sch"
+}

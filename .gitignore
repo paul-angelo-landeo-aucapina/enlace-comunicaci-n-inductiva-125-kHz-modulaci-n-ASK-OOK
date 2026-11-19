@@ -1,0 +1,17 @@
+# KiCad Local Settings (user window positions, active layers)
+*.kicad_prl
+
+# KiCad Lock & Backup Files
+*.lck
+~*
+*.bak
+*-save.kicad_sch
+*-save.kicad_pcb
+*-bak.kicad_sch
+*-bak.kicad_pcb
+
+# KiCad Local History Backup Directory
+.history/
+
+# Temporary test files
+test_*-erc.rpt
