@@ -1,0 +1,46 @@
+\section{Discusión y Conclusiones}
+\label{sec:discusion_conclusiones}
+
+\subsection{Discusión Técnica y Fuentes de Divergencia}
+\label{subsec:discusion_tecnica}
+
+La contrastación cuantitativa entre las deducciones analíticas, las simulaciones SPICE y los registros de laboratorio (Tablas~\ref{tab:ganancias} y~\ref{tab:mediciones_distancia}) revela una concordancia fundamental en la tendencia espacial de atenuación ($1/z^3$), junto a una divergencia sistemática aproximada del \SI{20}{\percent} a \SI{25}{\percent} entre el modelo ideal en circuito abierto y las mediciones experimentales. El análisis ingenieril identifica cuatro causas físicas determinantes:
+
+\begin{enumerate}
+    \item \textbf{Efecto de Carga de Entrada del Preamplificador:} El modelo analítico elemental asume un factor de calidad en vacío de $Q_0 \approx 78.56$. En el circuito real, la impedancia de entrada inversora de la primera etapa del MCP6002 ($R_{\text{in1}} = \SI{10}{\kilo\ohm}$) queda conectada en paralelo al tanque LC receptor, colapsando la resistencia equivalente resonante desde \SI{61.72}{\kilo\ohm} hasta \SI{8.60}{\kilo\ohm}. Esto amortigua el factor de calidad cargado efectivo a $Q_{\text{eff}} \approx 10.95$, reduciendo la amplificación pasiva respecto al límite teórico.
+    \item \textbf{Atenuación Dinámica por GBW Finito del Op-Amp:} Con un producto ganancia-ancho de banda de $\text{GBW} = \SI{1.0}{\mega\hertz}$, las frecuencias de corte de las etapas inversoras se sitúan en \SI{128.21}{\kilo\hertz} y \SI{175.44}{\kilo\hertz}, muy próximas a la portadora de \SI{125}{\kilo\hertz}. La ganancia activa efectiva cae de $31.96\text{ V/V}$ en DC a $18.63\text{ V/V}$ a la frecuencia de trabajo, explicando la diferencia observada en los oscilogramas respecto al modelo ideal.
+    \item \textbf{Pérdidas en el Núcleo de Ferrita y Tolerancias Pasivas:} A \SI{125}{\kilo\hertz}, las bobinas comerciales exhiben pérdidas por corrientes de Foucault e histéresis magnética en el núcleo de ferrita que elevan la resistencia serie equivalente efectiva por encima del valor DC medido con multímetro. Adicionalmente, las tolerancias de fabricación ($\pm 5\%$ en inductores y $\pm 1\%$ en capacitores C0G) pueden introducir leves desintonías que atenúan el pico resonante.
+    \item \textbf{Capacitancias Parásitas de Montaje:} El conexionado en protoboard introduce capacitancias parásitas de acoplo (típicamente \SI{2}{\pico\farad} a \SI{5}{\pico\farad} entre pistas adyacentes), afectando la constante de tiempo del detector de envolvente.
+\end{enumerate}
+
+\subsection{Límite Físico de Sensibilidad del Demodulador Pasivo}
+\label{subsec:limite_sensibilidad}
+
+El alcance máximo del enlace (\SI{7.0}{\centi\meter}) no se encuentra restringido por el piso de ruido térmico Johnson-Nyquist del canal, sino por la no linealidad impuesta por la barrera de conducción directa del diodo Schottky BAT85 ($V_F \approx \SI{0.25}{\volt}$):
+\begin{itemize}
+    \item Para distancias $z > \SI{7.0}{\centi\meter}$, la tensión inducida pico en el tanque es inferior a \SI{15}{\milli\volt}.
+    \item Aun amplificada por el MCP6002, la señal rectificada tras el desacoplo AC no suministra suficiente corriente para cargar el capacitor $C_6$ por encima del umbral de decisión del comparador LM393 ($V_{\text{th}} = \SI{0.30}{\volt}$).
+    \item Como consecuencia, el comparador no genera transiciones en \texttt{GPIO19}, provocando el cese de interrupciones y la pérdida total de sincronismo en el ESP32.
+\end{itemize}
+
+\subsection{Conclusiones}
+\label{subsec:conclusiones}
+
+El proyecto permitió validar experimentalmente el diseño y operación de un enlace de comunicación inductivo LF:
+\begin{enumerate}
+    \item \textbf{Comprobación del Régimen Cuasiestático:} Se verificó que en distancias menores a \SI{15}{\centi\meter} ($r \ll \lambda / 2\pi$), el acoplamiento magnético reactivo sigue la ley de Biot-Savart con una atenuación asintótica del tipo $1/z^3$.
+    \item \textbf{Eficacia de las Redes Resonantes Asimétricas:} El tanque serie en el transmisor maximizó la corriente en la bobina emisora (\SI{13.77}{\milli\ampere} RMS), mientras que el tanque paralelo en recepción suministró ganancia pasiva de tensión fundamental para elevar la señal por encima del ruido.
+    \item \textbf{Acondicionamiento Monofuente Robusto:} La combinación de masa virtual a \SI{1.65}{\volt}, preamplificador de bajo ruido MCP6002, desacoplo AC para remoción de continua y conformador con histéresis LM393 aseguró una conmutación limpia sin rebotes parásitos.
+    \item \textbf{Desempeño Digital en ESP32:} La codificación Manchester a \SI{250}{\text{bps}} con filtrado anti-glitch por software logró una tasa de error de paquete nula ($\text{PER} = 0$) con verificación CRC-8 hasta una distancia de \SI{7.0}{\centi\meter}.
+\end{enumerate}
+
+\subsection{Trabajo Futuro}
+\label{subsec:trabajo_futuro}
+
+Como líneas de evolución y mejora técnica se plantean:
+\begin{enumerate}
+    \item \textbf{Rectificación Activa Síncrona:} Reemplazar el diodo BAT85 por un detector activo basado en MOSFETs de baja resistencia de canal para eliminar la caída $V_F$ de \SI{0.25}{\volt}, extendiendo el alcance operativo más allá de \SI{12}{\centi\meter}.
+    \item \textbf{Control Automático de Ganancia (AGC):} Incorporar una etapa de atenuación/ganancia adaptativa para evitar la saturación rail-to-rail a distancias de contacto ($z < \SI{1.5}{\centi\meter}$) preservando la máxima sensibilidad a distancias límite.
+    \item \textbf{Sintonía Automática por Matriz de Capacitores:} Implementar una red de sintonía conmutada mediante varactores o transistores gobernados por microcontrolador para compensar desintonías por proximidad de metales.
+    \item \textbf{Transferencia Simultánea de Potencia y Datos (WPT):} Adaptar el transmisor para energizar inductivamente un nodo sensor pasivo libre de batería en el lado receptor.
+\end{enumerate}

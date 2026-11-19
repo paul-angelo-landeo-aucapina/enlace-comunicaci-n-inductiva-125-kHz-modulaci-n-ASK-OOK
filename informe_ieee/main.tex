@@ -1,0 +1,72 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% Paquetes esenciales para edición académica
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{url}
+\usepackage{microtype}
+\usepackage{tikz}
+
+% Directorio de figuras
+\graphicspath{{figuras/}}
+
+\begin{document}
+
+% ==============================================================================
+% 1. CARÁTULA / ENCABEZADO FORMAL IEEE (SECCIÓN I)
+% ==============================================================================
+\title{Diseño, Simulación, Validación Analítica y Evaluación Experimental de un Enlace de Comunicación Inductiva a 125 kHz con Modulación ASK/OOK}
+
+\author{
+    \IEEEauthorblockN{
+        [Nombre del Estudiante 1]\IEEEauthorrefmark{1},
+        [Nombre del Estudiante 2]\IEEEauthorrefmark{2},
+        [Nombre del Estudiante 3]\IEEEauthorrefmark{3}
+    }
+    \IEEEauthorblockA{
+        Departamento de Ingeniería Eléctrica y Electrónica\\
+        Asignatura: Campos Electromagnéticos / Teoría Electromagnética\\
+        [Nombre de la Universidad / Institución Académica]\\
+        Docente: [Nombre del Profesor / Asesor de Cátedra]\\
+        Correos electrónicos: \IEEEauthorrefmark{1}[email1@institucion.edu], \IEEEauthorrefmark{2}[email2@institucion.edu], \IEEEauthorrefmark{3}[email3@institucion.edu]
+    }
+}
+
+\maketitle
+
+\begin{abstract}
+El presente artículo presenta el diseño, simulación, validación analítica y evaluación experimental de un enlace de comunicación inalámbrica de corto alcance fundamentado en inducción magnética cuasiestática a una frecuencia portadora de \SI{125}{\kilo\hertz} mediante modulación digital ASK/OOK. El principio físico del enlace reside en la ley de inducción electromagnética de Faraday-Lenz y la ley de Biot-Savart, acoplando dos bobinas de núcleo de ferrita de \SI{1}{\milli\henry} en régimen reactivo ($r \ll \lambda / 2\pi$), donde la radiación electromagnética de campo lejano es despreciable. Se desarrolla un modelo cuantitativo completo que deduce la ganancia pasiva por resonancia y la ganancia activa de tensión de dos etapas (incorporando las limitaciones impuestas por el producto ganancia-ancho de banda del amplificador operacional), el balance de potencia activa y reactiva de los nodos de transmisión y recepción, y el presupuesto temporal de modulación para codificación Manchester a \SI{250}{\text{bps}}. La implementación física integra osciladores TLC555 modulados por conmutación activa, drivers TC4427A, tanques resonantes sintonizados a \SI{125.04}{\kilo\hertz}, un preamplificador en cascada MCP6002 con masa virtual a \SI{1.65}{\volt}, demodulador de envolvente con desacoplo de continua y conformador con histéresis LM393 conectado a microcontroladores ESP32. Las mediciones en banco de pruebas demuestran la validez del modelo analítico, corroborando la atenuación cúbica ($1/z^3$) y logrando una tasa de error de paquete nula ($\text{PER} = 0$) hasta una distancia máxima de \SI{7.0}{\centi\meter}, limitada físicamente por la caída de tensión directa del diodo Schottky.
+\end{abstract}
+
+\begin{IEEEkeywords}
+inducción electromagnética, acoplamiento inductivo, ley de Faraday-Lenz, modulación ASK/OOK, RFID LF, presupuesto de enlace, factor de calidad, ganancia-ancho de banda, ESP32.
+\end{IEEEkeywords}
+
+% ==============================================================================
+% SECCIONES MODULARES DEL INFORME (ESTRUCTURA DE 6 DIVISIONES)
+% ==============================================================================
+% 2. Introducción
+\input{secciones/01_introduccion.tex}
+
+% 3. Metodología (Modelo físico, diseño circuital, simulación, protocolo/firmware, banco experimental)
+\input{secciones/02_metodologia.tex}
+
+% 4. Resultados (Cálculos de ganancia, potencia y enlace, simulaciones, oscilogramas y tabla comparativa)
+\input{secciones/03_resultados.tex}
+
+% 5. Discusión y Conclusiones (Discusión técnica, sensibilidad del detector, conclusiones y trabajo futuro)
+\input{secciones/04_discusion_conclusiones.tex}
+
+% 6. Referencias Bibliográficas (IEEEtran)
+\label{sec:referencias}
+\bibliographystyle{IEEEtran}
+\bibliography{referencias}
+
+\end{document}

@@ -128,3 +128,58 @@ Ambos esquemáticos cuentan con **0 errores de Reglas Eléctricas (ERC)** en KiC
   * Esquemático KiCad: [`circuito_rx/circuito_rx.kicad_sch`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/circuito_rx/circuito_rx.kicad_sch)
   * Plano exportado en PDF: [`circuito_rx/circuito_rx.pdf`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/circuito_rx/circuito_rx.pdf)
   * Proyecto: [`circuito_rx/circuito_rx.kicad_pro`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/circuito_rx/circuito_rx.kicad_pro)
+
+---
+
+## 6. Firmware Receptor ESP32 (`firmware_rx/`)
+
+Se implementó el firmware receptor optimizado para **Arduino IDE** en el directorio [`firmware_rx/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/firmware_rx/firmware_rx.ino):
+
+* **Velocidad de Enlace:** $250\text{ bps}$ ($T_{bit} = 4000\ \mu\text{s}$, $T_{half} = 2000\ \mu\text{s}$). Adecuado para la constante de tiempo $\tau = R_7 C_6 = 1.0\text{ ms}$ del demodulador analógico.
+* **Codificación de Línea:** Manchester IEEE 802.3 (Flanco ascendente en punto medio = `'0'`, descendente = `'1'`).
+* **Entrada de Datos:** Pin `GPIO19` (conectado al comparador LM393 mediante interrupción `CHANGE`).
+* **Tolerancia a Jitter y Ruido:**
+  * Filtro anti-glitch para transitorios $< 600\ \mu\text{s}$.
+  * Ventana de aceptación $\pm 25\%$ ($T_{half}: 1400 - 2600\ \mu\text{s}$, $T_{bit}: 2800 - 5200\ \mu\text{s}$).
+  * Timeout automático de silencio a los $14\text{ ms}$ ($> 3\times T_{bit}$).
+* **Estructura de Trama:**
+  1. **Preámbulo:** `0xAA` (`10101010`) para sincronización de reloj y máquina de estados.
+  2. **Delimitador de Inicio (SFD):** `0x7E` (`01111110`).
+  3. **Longitud:** 1 byte ($1 \le N \le 32$).
+  4. **Carga Útil (Payload):** $N$ bytes.
+  5. **Verificación:** CRC-8 (Polinomio $0\text{x}07$, $x^8 + x^2 + x + 1$).
+* **Suite de Pruebas Automatizada:** [`tests/test_rx_decoder.cpp`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/test_rx_decoder.cpp). Verificada con inyección de jitter y ruido parásito.
+
+---
+
+## 7. Validación Cuantitativa y Cálculos de Ingeniería (`informe_ieee/datos/`)
+
+Se implementó el script automatizado [`informe_ieee/datos/calcular_parametros_enlace.py`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/informe_ieee/datos/calcular_parametros_enlace.py) para modelar y corroborar numéricamente el enlace:
+
+* **Ganancia del Sistema:**
+  * Ganancia pasiva del tanque receptor: $Q_0 \approx 78.56$ ($+37.9\text{ dB}$).
+  * Efecto de carga del preamplificador ($R_{\text{in}} = 10\text{ k}\Omega$): $Q_{\text{eff}} \approx 10.95$ ($+20.8\text{ dB}$).
+  * Ganancia activa MCP6002 (2 etapas): $31.96\text{ V/V}$ en DC $\rightarrow 18.63\text{ V/V}$ a $125\text{ kHz}$ por limitación dinámica de GBW ($1.0\text{ MHz}$).
+  * Ganancia total real del sistema: $A_{\text{total,real}} \approx 204.09\text{ V/V}$ ($+46.2\text{ dB}$).
+* **Balance de Potencia Estimada:**
+  * Transmisor (TX): Corriente fundamental en bobina $I_{\text{rms}} = 13.77\text{ mA}$ ($19.47\text{ mA}$ pico); potencia activa disipada en $R_{\text{limit}}$ ($28.43\text{ mW}$) y bobina ($1.90\text{ mW}$); potencia reactiva magnética $Q_{\text{mag}} = 148.89\text{ mVAR}$; consumo total TX $\approx 162.74\text{ mW}$ ($0.163\text{ W}$).
+  * Receptor (RX): Consumo de circuitería analógica ($3.45\text{ mW}$) y ESP32 en recepción ($99.0\text{ mW}$); consumo total RX $\approx 102.45\text{ mW}$ ($0.102\text{ W}$).
+* **Presupuesto Temporal de Enlace y Rendimiento:**
+  * Modulación Manchester a $250\text{ bps}$ ($T_{\text{bit}} = 4.0\text{ ms}$, $T_{\text{half}} = 2.0\text{ ms}$).
+  * Relación $T_{\text{half}} / \tau_{\text{env}} = 2.0 \implies$ descarga residual de $13.53\%$ ($>86\%$ de descarga), garantizando inmunidad a ISI.
+  * Throughput útil: $166.7\text{ bps}$ para payload de 8 bytes ($384\text{ ms}$ por trama) y hasta $222.2\text{ bps}$ para 32 bytes ($1152\text{ ms}$).
+  * Sensibilidad límite: Umbral del comparador $V_{\text{th}} = 0.30\text{ V}$ más barrera Schottky $V_F = 0.25\text{ V} \implies$ tensión mínima en tanque de $34.4\text{ a }59.0\text{ mV}_{\text{pp}}$, prediciendo el corte de enlace a partir de $7.0\text{ cm}$ (en concordancia con la medición experimental).
+
+---
+
+## 8. Informe Técnico en Formato IEEE (`informe_ieee/`)
+
+El informe académico se encuentra estructurado en 6 secciones canónicas:
+1. **Carátula:** Portada/Title block formal IEEE en [`informe_ieee/main.tex`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/informe_ieee/main.tex) con marcadores de posición configurables para autores, filiación y asignatura.
+2. **Introducción:** [`informe_ieee/secciones/01_introduccion.tex`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/informe_ieee/secciones/01_introduccion.tex).
+3. **Metodología:** [`informe_ieee/secciones/02_metodologia.tex`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/informe_ieee/secciones/02_metodologia.tex) (Modelo físico, diseño de circuitos, simulación computacional, firmware/protocolo y banco experimental).
+4. **Resultados:** [`informe_ieee/secciones/03_resultados.tex`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/informe_ieee/secciones/03_resultados.tex) (Cálculos de ganancia, potencia y enlace, simulaciones, oscilogramas y tabla comparativa de mediciones).
+5. **Discusión y Conclusiones:** [`informe_ieee/secciones/04_discusion_conclusiones.tex`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/informe_ieee/secciones/04_discusion_conclusiones.tex) (Discusión técnica, sensibilidad del detector, conclusiones y trabajo futuro).
+6. **Referencias:** Bibliografía normalizada en [`informe_ieee/referencias.bib`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/informe_ieee/referencias.bib).
+
+Documento unificado listo para visualización y lectura directa: [`informe_ieee/BORRADOR.md`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/informe_ieee/BORRADOR.md).

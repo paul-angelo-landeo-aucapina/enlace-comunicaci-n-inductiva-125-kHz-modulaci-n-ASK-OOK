@@ -15,3 +15,9 @@
 
 # Temporary test files
 test_*-erc.rpt
+
+# Build artifacts & binaries
+tests/test_rx_decoder
+*.o
+*.bin
+*.elf
