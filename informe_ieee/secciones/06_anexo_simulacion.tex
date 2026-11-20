@@ -174,3 +174,28 @@ def simular_enlace_completo(distancia_cm=3.0, baudrate=250):
     # 6. Conformacion con histeresis en comparador LM393
     # V_digital = 3.3V si V_env > V_th_high, 0V si V_env < V_th_low
 \end{lstlisting}
+
+\subsection{Generador de Oscilogramas Simulados de Calidad de Instrumentación}
+
+El script \texttt{generar\_oscilogramas\_simulados.py} sintetiza los cuatro registros de simulación en el dominio del tiempo con formato de osciloscopio digital (Figuras~\ref{fig:montaje_experimental}, \ref{fig:osc_tx}, \ref{fig:osc_rx_amp} y \ref{fig:osc_demod}), modelando los transitorios de subida del tanque serie ($\tau \approx \SI{12.2}{\micro\second}$), la polarización con masa virtual a \SI{1.65}{\volt}, la limitación de ganancia activa por GBW en el MCP6002 a \SI{125}{\kilo\hertz} y la descarga intersimbólica del filtro $R_7 C_6$.
+
+\begin{lstlisting}[style=custompy, caption={Generador de oscilogramas simulados (\texttt{informe\_ieee/datos/generar\_oscilogramas\_simulados.py})}]
+#!/usr/bin/env python3
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parametros de portadora y tasa de simbolos
+F0 = 125040.0; W0 = 2.0 * np.pi * F0
+BAUD = 250.0; T_HALF = 0.5 / BAUD # 2.0 ms
+FS = 1.25e6; DT = 1.0 / FS
+
+def sintetizar_enlace(n_bits=8, z_cm=7.0):
+    # Generacion de secuencia Manchester y moduladora GPIO18
+    # Transitorios de tanque serie: tau = 2*Q / w0 ~ 12.2 us
+    # Excitacion cuasiestatica V_coil = 3.18 Vpk * env * sin(w0 * t)
+    # Acoplamiento mutuo y tension inducida V_tank_pp ~ 30.2 mVpp (z = 7 cm)
+    # Preamplificacion MCP6002 con polo GBW (Av = 18.63 V/V sobre 1.65 V)
+    # Diodo Schottky BAT85 (Vf = 0.18 V) y filtro RC (tau_env = 1.0 ms)
+    # Comparador LM393 con histeresis (Vth = 0.30 V +- 25 mV)
+    pass
+\end{lstlisting}

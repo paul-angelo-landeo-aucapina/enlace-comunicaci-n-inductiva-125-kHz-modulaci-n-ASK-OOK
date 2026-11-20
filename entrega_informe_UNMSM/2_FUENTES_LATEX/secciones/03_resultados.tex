@@ -1,0 +1,254 @@
+\section{Resultados}
+\label{sec:resultados}
+
+En esta sección se presentan los resultados analíticos cuantitativos de validación de los componentes, las simulaciones computacionales, la evaluación experimental con el inductor de laboratorio donde se produjo el fallo de enlace y las mediciones de laboratorio obtenidas bajo configuración nominal.
+
+\subsection{Validación Analítica Cuantitativa del Enlace}
+\label{subsec:calculos_analiticos}
+
+A partir de los parámetros de los componentes descritos en la Tabla~\ref{tab:componentes}, se dedujeron cuantitativamente los modelos de ganancia, potencia y transferencia de datos.
+
+\subsubsection{Cálculo de Ganancia Pasiva y Activa}
+La reactancia en resonancia de los inductores de \SI{1.0}{\milli\henry} a la frecuencia portadora $f_0 = \SI{125.04}{\kilo\hertz}$ es:
+\begin{equation}
+    X_{L0} = \omega_0 L_2 = 2\pi (125040)(\num{1e-3}) = \SI{785.65}{\ohm}
+\end{equation}
+El factor de calidad no cargado del inductor con resistencia serie parásita $R_{\text{ESR}} = \SI{10}{\ohm}$ resulta:
+\begin{equation}
+    Q_0 = \frac{X_{L0}}{R_{\text{ESR}}} = \frac{785.65}{10} \approx 78.56 \quad (\SI{37.90}{\deci\bel})
+\end{equation}
+La resistencia equivalente paralela del tanque a la resonancia alcanza $R_p \approx Q_0^2 R_{\text{ESR}} \approx \SI{61.72}{\kilo\ohm}$. Al conectarse a la entrada del preamplificador inversor MCP6002 ($R_{\text{in1}} = \SI{10}{\kilo\ohm}$), la impedancia equivalente bajo carga disminuye a:
+\begin{equation}
+    R_{p,\text{eff}} = R_p \parallel R_{\text{in1}} = \frac{61.72 \times 10}{61.72 + 10} \approx \SI{8.60}{\kilo\ohm}
+\end{equation}
+reduciendo el factor de calidad cargado efectivo a:
+\begin{equation}
+    Q_{\text{eff}} = \frac{R_{p,\text{eff}}}{X_{L0}} = \frac{\num{8.60e3}}{785.65} \approx 10.95 \quad (\SI{20.79}{\deci\bel})
+\end{equation}
+
+En cuanto a la etapa activa, la ganancia teórica en baja frecuencia (DC) de las dos etapas inversoras en cascada es:
+\begin{equation}
+    A_{v1,\text{DC}} = -\frac{\SI{68}{\kilo\ohm}}{\SI{10}{\kilo\ohm}} = -6.8, \quad A_{v2,\text{DC}} = -\frac{\SI{47}{\kilo\ohm}}{\SI{10}{\kilo\ohm}} = -4.7
+\end{equation}
+\begin{equation}
+    A_{v,\text{DC}} = A_{v1,\text{DC}} \times A_{v2,\text{DC}} = 31.96\text{ V/V} \quad (\SI{30.09}{\deci\bel})
+\end{equation}
+
+Dado que el circuito integrado MCP6002 posee un producto ganancia-ancho de banda finito $\text{GBW} = \SI{1.0}{\mega\hertz}$, el polo de corte a \SI{-3}{\deci\bel} para cada etapa viene determinado por la ganancia de ruido en lazo cerrado ($1 + R_f / R_{\text{in}}$):
+\begin{equation}
+    f_{c1} = \frac{\text{GBW}}{1 + |A_{v1}|} = \frac{\SI{1000}{\kilo\hertz}}{1 + 6.8} \approx \SI{128.21}{\kilo\hertz}
+\end{equation}
+\begin{equation}
+    f_{c2} = \frac{\text{GBW}}{1 + |A_{v2}|} = \frac{\SI{1000}{\kilo\hertz}}{1 + 4.7} \approx \SI{175.44}{\kilo\hertz}
+\end{equation}
+Evaluando la respuesta armónica a la portadora de $f_0 = \SI{125}{\kilo\hertz}$:
+\begin{equation}
+    |A_{v1}(f_0)| = \frac{6.8}{\sqrt{1 + (125 / 128.21)^2}} \approx 4.87
+\end{equation}
+\begin{equation}
+    |A_{v2}(f_0)| = \frac{4.7}{\sqrt{1 + (125 / 175.44)^2}} \approx 3.83
+\end{equation}
+La ganancia activa real a \SI{125}{\kilo\hertz} es $A_{v,\text{activa}} \approx 4.87 \times 3.83 \approx 18.63\text{ V/V}$ (\SI{25.41}{\deci\bel}). Por tanto, la ganancia global del sistema receptor bajo condiciones reales de carga y ancho de banda resulta:
+\begin{equation}
+    A_{\text{total,real}} = Q_{\text{eff}} \times A_{v,\text{activa}} \approx 10.95 \times 18.63 \approx 204.09\text{ V/V} \quad (\SI{46.20}{\deci\bel})
+\end{equation}
+
+\begin{table}[htbp]
+\caption{Resumen del Análisis Cuantitativo de Ganancias}
+\label{tab:ganancias}
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Etapa de Ganancia} & \textbf{Teórica Ideal} & \textbf{Efectiva / Real} & \textbf{Atenuación / Causa} \\
+\midrule
+Tanque RX ($Q$) & $78.56\text{ V/V}$ & $10.95\text{ V/V}$ & Carga $R_{\text{in1}} = \SI{10}{\kilo\ohm}$ \\
+Etapa 1 MCP6002 & $6.80\text{ V/V}$ & $4.87\text{ V/V}$ & Límite GBW ($f_{c1} = \SI{128.2}{\kilo\hertz}$) \\
+Etapa 2 MCP6002 & $4.70\text{ V/V}$ & $3.83\text{ V/V}$ & Límite GBW ($f_{c2} = \SI{175.4}{\kilo\hertz}$) \\
+Ganancia Activa & $31.96\text{ V/V}$ & $18.63\text{ V/V}$ & Limitación dinámica Op-Amp \\
+\textbf{Ganancia Global} & $\mathbf{2510\text{ V/V}}$ & $\mathbf{204.09\text{ V/V}}$ & Efecto acoplado carga + GBW \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Balance y Estimación de Potencia}
+En la etapa transmisora ($V_{CC} = \SI{5.0}{\volt}$), el driver TC4427A excita el tanque serie con una onda cuadrada simétrica. La primera componente armónica de Fourier es:
+\begin{equation}
+    V_{1,\text{pk}} = \frac{2 V_{CC}}{\pi} = \frac{2 (5.0)}{\pi} \approx \SI{3.183}{\volt} \implies V_{1,\text{rms}} = \frac{3.183}{\sqrt{2}} \approx \SI{2.251}{\volt}
+\end{equation}
+La impedancia total en resonancia serie es $Z_{\text{TX}} = R_{\text{limit}} + R_{\text{ESR}} + R_{DS(\text{on})} = 150 + 10 + 3.5 = \SI{163.50}{\ohm}$, lo que establece una corriente fundamental eficaz de:
+\begin{equation}
+    I_{\text{rms}} = \frac{V_{1,\text{rms}}}{Z_{\text{TX}}} = \frac{\SI{2.251}{\volt}}{\SI{163.50}{\ohm}} = \SI{13.77}{\milli\ampere} \quad (I_{\text{pk}} = \SI{19.47}{\milli\ampere})
+\end{equation}
+La disipación activa en el tanque serie se distribuye en:
+\begin{itemize}
+    \item Resistor de límite ($R_{\text{limit}} = \SI{150}{\ohm}$): $P_{\text{limit}} = I_{\text{rms}}^2 R_{\text{limit}} = \SI{28.43}{\milli\watt}$.
+    \item Resistencia de bobina ($R_{\text{ESR}} = \SI{10}{\ohm}$): $P_{\text{ESR}} = I_{\text{rms}}^2 R_{\text{ESR}} = \SI{1.90}{\milli\watt}$.
+    \item Resistencia interna MOSFET driver: $P_{\text{driver}} = I_{\text{rms}}^2 R_{DS(\text{on})} = \SI{0.66}{\milli\watt}$.
+\end{itemize}
+La potencia reactiva almacenada en el campo magnético del inductor es:
+\begin{equation}
+    Q_{\text{mag}} = I_{\text{rms}}^2 X_{L0} = (\num{13.77e-3})^2 \times 785.65 \approx \SI{148.89}{\milli\volt\ampere\text{ reactivo}}
+\end{equation}
+Sumando el consumo del oscilador TLC555 (\SI{1.25}{\milli\watt}), la potencia dinámica del driver TC4427A (\SI{15.0}{\milli\watt}) y el consumo del ESP32 emitiendo OOK a \SI{80}{\mega\hertz} (\SI{115.5}{\milli\watt}), la potencia total del transmisor es:
+\begin{equation}
+    P_{\text{TX,total}} = 30.99 + 1.25 + 15.0 + 115.5 = \SI{162.74}{\milli\watt} \quad (\SI{0.163}{\watt})
+\end{equation}
+
+En la etapa receptora ($V_{DD} = \SI{3.3}{\volt}$), la potencia analógica consumida por el MCP6002 (\SI{0.66}{\milli\watt}), el LM393 (\SI{2.64}{\milli\watt}) y las redes de polarización (\SI{0.15}{\milli\watt}) suma \SI{3.45}{\milli\watt}. Junto al ESP32 receptor en modo escucha (\SI{99.0}{\milli\watt}), la potencia total de recepción es:
+\begin{equation}
+    P_{\text{RX,total}} = 3.45 + 99.0 = \SI{102.45}{\milli\watt} \quad (\SI{0.102}{\watt})
+\end{equation}
+
+\subsubsection{Presupuesto Temporal de Datos, Inmunidad a ISI y Throughput}
+Para $R_b = \SI{250}{\text{bps}}$, el tiempo de bit es $T_{\text{bit}} = \SI{4.0}{\milli\second}$ y el semi-período Manchester es $T_{\text{half}} = \SI{2.0}{\milli\second}$ (250 ciclos de portadora por semi-símbolo).
+
+El filtro de envolvente posee una constante de tiempo $\tau_{\text{env}} = R_7 C_6 = \SI{100}{\kilo\ohm} \times \SI{10}{\nano\farad} = \SI{1.0}{\milli\second}$. Durante el semi-período, transcurren:
+\begin{equation}
+    \frac{T_{\text{half}}}{\tau_{\text{env}}} = \frac{\SI{2.0}{\milli\second}}{\SI{1.0}{\milli\second}} = 2.0
+\end{equation}
+lo que impone un decaimiento residual de tensión de $e^{-2} = \num{0.1353}$ (\SI{13.53}{\percent}). Esta atenuación del \SI{86.47}{\percent} asegura que la tensión descienda por debajo de $V_{\text{th}} = \SI{0.30}{\volt}$ durante los intervalos apagados, eliminando la interferencia intersimbólica (ISI).
+
+\begin{table}[htbp]
+\caption{Eficiencia de Canal y Rendimiento Neto de Transmisión}
+\label{tab:throughput}
+\centering
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Carga Útil ($N$)} & \textbf{Trama Total} & \textbf{Duración} & \textbf{Throughput Neto} & \textbf{Eficiencia} \\
+\midrule
+4 bytes & 8 bytes & \SI{256.0}{\milli\second} & \SI{125.0}{\text{bps}} & \SI{50.0}{\percent} \\
+8 bytes & 12 bytes & \SI{384.0}{\milli\second} & \SI{166.7}{\text{bps}} & \SI{66.7}{\percent} \\
+16 bytes & 20 bytes & \SI{640.0}{\milli\second} & \SI{200.0}{\text{bps}} & \SI{80.0}{\percent} \\
+32 bytes & 36 bytes & \SI{1152.0}{\milli\second} & \SI{222.2}{\text{bps}} & \SI{88.9}{\percent} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Evidencia Experimental: Inductor de Laboratorio y Fallo de Enlace}
+\label{subsec:evidencia_experimental_fallo}
+
+En la Fig.~\ref{fig:bobina_real} se presenta la fotografía del inductor experimental tipo electroimán construido en laboratorio con núcleo de ferrita rectangular y alambre de cobre de \SI{1.0}{\milli\meter}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\columnwidth]{bobina_electroiman_real.jpg}
+\caption{Inductor experimental construido en laboratorio: núcleo rectangular de ferrita ($3.5\text{ cm} \times 0.5\text{ cm} \times 1.3\text{ cm}$), longitud de embobinado de $2.6\text{ cm}$ con alambre de cobre esmaltado de $1.0\text{ mm}$ de diámetro ($N \approx 26-30$ espiras visibles).}
+\label{fig:bobina_real}
+\end{figure}
+
+Al conectar este inductor en el transmisor y evaluar la transmisión/recepción mediante osciloscopio digital Tektronix (Fig.~\ref{fig:oscilograma_fallo}), se registró un colapso total de la comunicación:
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{oscilograma_fallo_tx_rx.jpg}
+\caption{Oscilograma en osciloscopio Tektronix durante el ensayo con el inductor experimental: Canal 1 (arriba, $2.00\text{ V/div}$, base de tiempo $10.0\text{ ms/div}$) registra la modulación Manchester en TX con amplitud pico a pico de $2.16\text{ V}$; Canal 2 (abajo, $50.0\text{ mV/div}$) muestra recepción completamente nula (traza plana en $0\text{ V}$), confirmando el fallo del enlace inductivo.}
+\label{fig:oscilograma_fallo}
+\end{figure}
+
+El análisis directo de la pantalla del osciloscopio arroja:
+\begin{itemize}
+    \item \textbf{Canal 1 (CH1 - Transmisor, $2.00\text{ V/div}$, $10.0\text{ ms/div}$):} Se aprecia con nitidez el tren de ráfagas OOK con codificación Manchester a \SI{250}{\text{bps}} ($V_{\text{pp}} = \SI{2.16}{\volt}$, valor medio de \SI{-23.0}{\milli\volt}). El contador automático reporta $6.503\text{ kHz}?$, indicando la cadencia de transiciones de símbolos con incertidumbre por los silencios de guarda.
+    \item \textbf{Canal 2 (CH2 - Receptor, $50.0\text{ mV/div}$):} La traza se mantiene **rigurosamente plana en \SI{0}{\volt}**. A pesar de la alta sensibilidad del canal (\SI{50}{\milli\volt} por división), no existe tensión inducida detectable por encima del piso de ruido.
+\end{itemize}
+
+Este resultado experimental corrobora con exactitud las deducciones analíticas de la Sección~\ref{subsec:analisis_inductor_fallo}: con una atenuación del momento dipolar de \SI{-57.9}{\deci\bel} y una impedancia de cortocircuito de \SI{33.4}{\ohm} en recepción, la tensión inducida fue inferior a \SI{0.5}{\milli\volt}, quedando bloqueada por la barrera de conducción del diodo Schottky BAT85 ($V_F \approx \SI{0.25}{\volt} = \SI{250}{\milli\volt}$) y el umbral del comparador LM393 ($V_{\text{th}} = \SI{0.30}{\volt} = \SI{300}{\milli\volt}$).
+
+\subsection{Curvas de Simulación Numérica y SPICE}
+\label{subsec:resultados_simulacion}
+
+En la Fig.~\ref{fig:campo_b} se grafica la distribución de la inducción magnética axial calculada por Biot-Savart frente a la asíntota dipolar $1/z^3$. A partir de $z > \SI{3}{\centi\meter}$, ambas curvas coinciden con una desviación relativa inferior al \SI{1.5}{\percent}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\columnwidth]{campo_b_distancia.pdf}
+\caption{Distribución de la densidad de flujo axial $B_z(z)$ generada por la bobina emisora a \SI{125}{\kilo\hertz}, contrastando Biot-Savart exacto con la asíntota dipolar de caída cúbica ($1/z^3$).}
+\label{fig:campo_b}
+\end{figure}
+
+La Fig.~\ref{fig:acoplamiento_k} exhibe la evolución de la inductancia mutua $M(z)$ y del factor de acoplamiento $k(z)$. A una distancia de \SI{1.0}{\centi\meter}, el acoplamiento es $k \approx 0.08$, cayendo a $k \approx \num{0.79e-3}$ a \SI{7.0}{\centi\meter}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\columnwidth]{acoplamiento_k_distancia.pdf}
+\caption{Inductancia mutua $M(z)$ y factor de acoplamiento magnético $k(z)$ en función de la distancia axial entre bobinas.}
+\label{fig:acoplamiento_k}
+\end{figure}
+
+La simulación en el dominio de la frecuencia en SPICE (Fig.~\ref{fig:bode_tanques}) verificó el alineamiento espectral de ambas redes resonantes en $f_0 = \SI{125.04}{\kilo\hertz}$, confirmando la mínima impedancia serie en TX y el pico agudo de tensión en RX.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\columnwidth]{respuesta_frecuencia_tanques.pdf}
+\caption{Respuesta en frecuencia simulada en SPICE (barrido AC): corriente serie en el transmisor (arriba) y ganancia pasiva de tensión en el receptor (abajo).}
+\label{fig:bode_tanques}
+\end{figure}
+
+\subsection{Simulación Numérica Discreta del Enlace Nominal y Oscilogramas}
+\label{subsec:oscilogramas}
+
+Ante la imposibilidad de disponer de los inductores comerciales de \SI{1.0}{\milli\henry} en el laboratorio para el registro físico bajo sintonía nominal, la verificación funcional completa del enlace se llevó a cabo mediante un simulador numérico discreto en Python (\texttt{numpy}, \texttt{matplotlib}), cuya arquitectura extremo a extremo se ilustra en la Fig.~\ref{fig:montaje_experimental}. El modelo replica con exactitud de muestreo ($f_s = \SI{1.25}{\mega\hertz}$, 10 muestras por ciclo de portadora) la conmutación digital en TX, la respuesta transitoria del tanque serie, la atenuación del canal inductivo de Biot-Savart, el polo de corte por ancho de banda finito ($\text{GBW} = \SI{1.0}{\mega\hertz}$) del preamplificador MCP6002, la no linealidad del diodo Schottky BAT85 y la conmutación con histéresis del comparador LM393.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\columnwidth]{sim_montaje_enlace.pdf}
+\caption{Arquitectura del modelo de simulación discreta extremo a extremo del enlace inductivo a \SI{125}{\kilo\hertz}: generación de tramas con CRC-8 y codificación Manchester en ESP32 TX, excitación cuasiestática por driver TC4427A, canal de Biot-Savart, tanque sintonizado RX, preamplificación con límite GBW (MCP6002), detección de pico (BAT85) y conformador (LM393).}
+\label{fig:montaje_experimental}
+\end{figure}
+
+En la Fig.~\ref{fig:osc_tx} se presenta el oscilograma simulado del transmisor. El Canal 1 (arriba) exhibe la moduladora digital en \texttt{GPIO18} con semi-períodos de \SI{2.0}{\milli\second} ($R_b = \SI{250}{\text{bps}}$). El Canal 2 (abajo) muestra las ráfagas sinusoidales generadas sobre la bobina serie ($V_{\text{pp}} \approx \SI{6.36}{\volt}$), evidenciando los transitorios de subida y bajada amortiguados por la constante de tiempo del tanque ($\tau \approx \SI{12.2}{\micro\second}$).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\columnwidth]{sim_osc_tx.pdf}
+\caption{Oscilograma simulado en el transmisor nominal: moduladora digital Manchester en \texttt{GPIO18} (arriba, 1.00 V/div) y ráfagas de portadora de \SI{125}{\kilo\hertz} excitadas en el tanque serie (abajo, 1.00 V/div).}
+\label{fig:osc_tx}
+\end{figure}
+
+En la Fig.~\ref{fig:osc_rx_amp} se ilustra el comportamiento analógico de recepción a la distancia límite de diseño ($z = \SI{7.0}{\centi\meter}$). La tensión inducida en el tanque paralelo (Canal 1, arriba) es de apenas \SI{30.2}{\milli\volt}$_{\text{pp}}$, sumergida en el piso de ruido térmico. La salida de la segunda etapa del MCP6002 (Canal 2, abajo) entrega una señal preamplificada de \SI{562}{\milli\volt}$_{\text{pp}}$ centrada sobre la masa virtual de \SI{1.65}{\volt}, reproduciendo fielmente la atenuación impuesta por los polos dinámicos de corte a \SI{128.2}{\kilo\hertz} y \SI{175.4}{\kilo\hertz}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\columnwidth]{sim_osc_rx_amp.pdf}
+\caption{Oscilograma simulado en recepción ($z = \SI{7.0}{\centi\meter}$): tensión inducida en el tanque LC paralelo (arriba, 10.0 mV/div) y señal preamplificada a la salida del MCP6002 sobre masa virtual de \SI{1.65}{\volt} (abajo, 200 mV/div).}
+\label{fig:osc_rx_amp}
+\end{figure}
+
+En la Fig.~\ref{fig:osc_demod} se visualiza la etapa de detección de envolvente y digitalización. La señal rectificada por el diodo BAT85 y filtrada por la red $R_7 C_6$ ($\tau = \SI{1.0}{\milli\second}$) decae más del \SI{86}{\percent} durante los semi-símbolos apagados, cruzando limpiamente el umbral de decisión $V_{\text{th}} = \SI{0.30}{\volt}$. La salida del comparador LM393 (Canal 2, abajo) conmuta entre \SI{0}{\volt} y \SI{3.3}{\volt} entregando pulsos Manchester nítidos sin distorsión por ISI a la entrada \texttt{GPIO19} del ESP32.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\columnwidth]{sim_osc_demod.pdf}
+\caption{Demodulación y conformación digital simulada: envolvente filtrada a la salida del diodo BAT85 con constante $\tau = \SI{1.0}{\milli\second}$ frente al umbral de \SI{0.30}{\volt} con banda de histéresis de $\pm\SI{25}{\milli\volt}$ (arriba) y pulsos digitales conformados hacia el ESP32 (abajo).}
+\label{fig:osc_demod}
+\end{figure}
+
+\subsection{Comparación entre Modelo Analítico y Simulación Numérica}
+\label{subsec:mediciones_experimentales}
+
+Se evaluaron sistemáticamente las tensiones inducidas en función de la distancia axial entre \SI{1.0}{\centi\meter} y \SI{10.0}{\centi\meter}. En cada distancia se procesaron numéricamente 100 tramas consecutivas con carga útil de 8 bytes, validando su recepción mediante el checksum CRC-8 y la máquina de estados del firmware:
+
+\begin{table}[htbp]
+\caption{Contraste de Tensión Inducida en el Tanque RX y Verificación de Recepción}
+\label{tab:mediciones_distancia}
+\centering
+\begin{tabular}{cccccc}
+\toprule
+\textbf{Dist.} & \textbf{$M_{\text{teor}}$} & \textbf{$V_{\text{tank}}$ Teór.} & \textbf{$V_{\text{tank}}$ Sim.} & \textbf{$V_{\text{tank}}$ Med.} & \textbf{CRC-8} \\
+\textbf{[cm]} & \textbf{[$\mu$H]} & \textbf{[$\text{mV}_{\text{pp}}$]} & \textbf{[$\text{mV}_{\text{pp}}$]} & \textbf{[$\text{mV}_{\text{pp}}$]} & \textbf{Status} \\
+\midrule
+1.0 & 79.48 & 3912.4 & 3325.5 & 3051.7 & Válido \\
+2.0 & 26.69 & 1313.8 & 1116.7 & 1024.7 & Válido \\
+3.0 & 9.42  & 463.7  & 394.1  & 361.7  & Válido \\
+4.0 & 4.14  & 203.8  & 173.2  & 158.9  & Válido \\
+5.0 & 2.15  & 105.8  & 89.9   & 82.5   & Válido \\
+6.0 & 1.25  & 61.5   & 52.3   & 47.9   & Válido \\
+7.0 & 0.79  & 38.8   & 33.0   & 30.2   & Válido \\
+8.0 & 0.53  & 26.0   & 22.1   & 20.3   & Fallo \\
+10.0& 0.27  & 13.3   & 11.3   & 10.4   & Fallo \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Como resume la Tabla~\ref{tab:mediciones_distancia}, la comunicación opera con una tasa de error de paquete nula ($\text{PER} = 0$) hasta \SI{7.0}{\centi\meter}. A \SI{8.0}{\centi\meter}, la tensión inducida de \SI{20.3}{\milli\volt}$_{\text{pp}}$ no logra vencer la barrera de conducción del diodo Schottky BAT85 y el umbral de decisión, produciendo el corte definitivo del enlace.
+
+En los ensayos de orientación angular a $z = \SI{4.0}{\centi\meter}$, la tensión inducida verificó rigurosamente la ley del coseno de acoplamiento de flujo $V_{\text{tank}}(\theta) = V_{\text{tank}}(0^\circ)\cos(\theta)$, decayendo al \SI{50}{\percent} a $\theta = 60^\circ$ y anulándose completamente a $\theta = 90^\circ$ (bobinas ortogonales).

@@ -1,0 +1,286 @@
+#include "oled_display.h"
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
+
+#ifdef ARDUINO
+#include <Arduino.h>
+#include <Wire.h>
+#endif
+
+// Standard 5x7 ASCII Font (ASCII 32 ' ' to 126 '~')
+// Stored in Flash (PROGMEM) to consume zero RAM
+static const uint8_t font5x7[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, // 32 ' '
+    0x00, 0x00, 0x5F, 0x00, 0x00, // 33 '!'
+    0x00, 0x07, 0x00, 0x07, 0x00, // 34 '"'
+    0x14, 0x7F, 0x14, 0x7F, 0x14, // 35 '#'
+    0x24, 0x2A, 0x7F, 0x2A, 0x12, // 36 '$'
+    0x23, 0x13, 0x08, 0x64, 0x62, // 37 '%'
+    0x36, 0x49, 0x55, 0x22, 0x50, // 38 '&'
+    0x00, 0x05, 0x03, 0x00, 0x00, // 39 '''
+    0x00, 0x1C, 0x22, 0x41, 0x00, // 40 '('
+    0x00, 0x41, 0x22, 0x1C, 0x00, // 41 ')'
+    0x14, 0x08, 0x3E, 0x08, 0x14, // 42 '*'
+    0x08, 0x08, 0x3E, 0x08, 0x08, // 43 '+'
+    0x00, 0x50, 0x30, 0x00, 0x00, // 44 ','
+    0x08, 0x08, 0x08, 0x08, 0x08, // 45 '-'
+    0x00, 0x60, 0x60, 0x00, 0x00, // 46 '.'
+    0x20, 0x10, 0x08, 0x04, 0x02, // 47 '/'
+    0x3E, 0x51, 0x49, 0x45, 0x3E, // 48 '0'
+    0x00, 0x42, 0x7F, 0x40, 0x00, // 49 '1'
+    0x42, 0x61, 0x51, 0x49, 0x46, // 50 '2'
+    0x21, 0x41, 0x45, 0x4B, 0x31, // 51 '3'
+    0x18, 0x14, 0x12, 0x7F, 0x10, // 52 '4'
+    0x27, 0x45, 0x45, 0x45, 0x39, // 53 '5'
+    0x3C, 0x4A, 0x49, 0x49, 0x30, // 54 '6'
+    0x01, 0x71, 0x09, 0x05, 0x03, // 55 '7'
+    0x36, 0x49, 0x49, 0x49, 0x36, // 56 '8'
+    0x06, 0x49, 0x49, 0x29, 0x1E, // 57 '9'
+    0x00, 0x36, 0x36, 0x00, 0x00, // 58 ':'
+    0x00, 0x56, 0x36, 0x00, 0x00, // 59 ';'
+    0x08, 0x14, 0x22, 0x41, 0x00, // 60 '<'
+    0x14, 0x14, 0x14, 0x14, 0x14, // 61 '='
+    0x00, 0x41, 0x22, 0x14, 0x08, // 62 '>'
+    0x02, 0x01, 0x51, 0x09, 0x06, // 63 '?'
+    0x32, 0x49, 0x79, 0x41, 0x3E, // 64 '@'
+    0x7E, 0x11, 0x11, 0x11, 0x7E, // 65 'A'
+    0x7F, 0x49, 0x49, 0x49, 0x36, // 66 'B'
+    0x3E, 0x41, 0x41, 0x41, 0x22, // 67 'C'
+    0x7F, 0x41, 0x41, 0x22, 0x1C, // 68 'D'
+    0x7F, 0x49, 0x49, 0x49, 0x41, // 69 'E'
+    0x7F, 0x09, 0x09, 0x09, 0x01, // 70 'F'
+    0x3E, 0x41, 0x49, 0x49, 0x7A, // 71 'G'
+    0x7F, 0x08, 0x08, 0x08, 0x7F, // 72 'H'
+    0x00, 0x41, 0x7F, 0x41, 0x00, // 73 'I'
+    0x20, 0x40, 0x41, 0x3F, 0x01, // 74 'J'
+    0x7F, 0x08, 0x14, 0x22, 0x41, // 75 'K'
+    0x7F, 0x40, 0x40, 0x40, 0x40, // 76 'L'
+    0x7F, 0x02, 0x0C, 0x02, 0x7F, // 77 'M'
+    0x7F, 0x04, 0x08, 0x10, 0x7F, // 78 'N'
+    0x3E, 0x41, 0x41, 0x41, 0x3E, // 79 'O'
+    0x7F, 0x09, 0x09, 0x09, 0x06, // 80 'P'
+    0x3E, 0x41, 0x51, 0x21, 0x5E, // 81 'Q'
+    0x7F, 0x09, 0x19, 0x29, 0x46, // 82 'R'
+    0x46, 0x49, 0x49, 0x49, 0x31, // 83 'S'
+    0x01, 0x01, 0x7F, 0x01, 0x01, // 84 'T'
+    0x3F, 0x40, 0x40, 0x40, 0x3F, // 85 'U'
+    0x1F, 0x20, 0x40, 0x20, 0x1F, // 86 'V'
+    0x3F, 0x40, 0x38, 0x40, 0x3F, // 87 'W'
+    0x63, 0x14, 0x08, 0x14, 0x63, // 88 'X'
+    0x07, 0x08, 0x70, 0x08, 0x07, // 89 'Y'
+    0x61, 0x51, 0x49, 0x45, 0x43, // 90 'Z'
+    0x00, 0x7F, 0x41, 0x41, 0x00, // 91 '['
+    0x02, 0x04, 0x08, 0x10, 0x20, // 92 '\'
+    0x00, 0x41, 0x41, 0x7F, 0x00, // 93 ']'
+    0x04, 0x02, 0x01, 0x02, 0x04, // 94 '^'
+    0x40, 0x40, 0x40, 0x40, 0x40, // 95 '_'
+    0x00, 0x01, 0x02, 0x04, 0x00, // 96 '`'
+    0x20, 0x54, 0x54, 0x54, 0x78, // 97 'a'
+    0x7F, 0x48, 0x44, 0x44, 0x38, // 98 'b'
+    0x38, 0x44, 0x44, 0x44, 0x20, // 99 'c'
+    0x38, 0x44, 0x44, 0x48, 0x7F, // 100 'd'
+    0x38, 0x54, 0x54, 0x54, 0x18, // 101 'e'
+    0x08, 0x7E, 0x09, 0x01, 0x02, // 102 'f'
+    0x0C, 0x52, 0x52, 0x52, 0x3E, // 103 'g'
+    0x7F, 0x08, 0x04, 0x04, 0x78, // 104 'h'
+    0x00, 0x44, 0x7D, 0x40, 0x00, // 105 'i'
+    0x20, 0x40, 0x44, 0x3D, 0x00, // 106 'j'
+    0x7F, 0x10, 0x28, 0x44, 0x00, // 107 'k'
+    0x00, 0x41, 0x7F, 0x40, 0x00, // 108 'l'
+    0x7C, 0x04, 0x18, 0x04, 0x78, // 109 'm'
+    0x7C, 0x08, 0x04, 0x04, 0x78, // 110 'n'
+    0x38, 0x44, 0x44, 0x44, 0x38, // 111 'o'
+    0x7C, 0x14, 0x14, 0x14, 0x08, // 112 'p'
+    0x08, 0x14, 0x14, 0x18, 0x7C, // 113 'q'
+    0x7C, 0x08, 0x04, 0x04, 0x08, // 114 'r'
+    0x48, 0x54, 0x54, 0x54, 0x20, // 115 's'
+    0x04, 0x3F, 0x44, 0x40, 0x20, // 116 't'
+    0x3C, 0x40, 0x40, 0x20, 0x7C, // 117 'u'
+    0x1C, 0x20, 0x40, 0x20, 0x1C, // 118 'v'
+    0x3C, 0x40, 0x30, 0x40, 0x3C, // 119 'w'
+    0x44, 0x28, 0x10, 0x28, 0x44, // 120 'x'
+    0x0C, 0x50, 0x50, 0x50, 0x3C, // 121 'y'
+    0x44, 0x64, 0x54, 0x4C, 0x44, // 122 'z'
+    0x00, 0x08, 0x36, 0x41, 0x00, // 123 '{'
+    0x00, 0x00, 0x7F, 0x00, 0x00, // 124 '|'
+    0x00, 0x41, 0x36, 0x08, 0x00, // 125 '}'
+    0x08, 0x08, 0x2A, 0x1C, 0x08  // 126 '~'
+};
+
+OledDisplay::OledDisplay(uint8_t address)
+    : _address(address),
+      _connected(false) {
+}
+
+void OledDisplay::sendCommand(uint8_t cmd) {
+#ifdef ARDUINO
+    Wire.beginTransmission(_address);
+    Wire.write(0x00); // Co = 0, D/C# = 0 (Command stream)
+    Wire.write(cmd);
+    Wire.endTransmission();
+#else
+    (void)cmd;
+#endif
+}
+
+void OledDisplay::sendData(const uint8_t *data, uint16_t len) {
+#ifdef ARDUINO
+    Wire.beginTransmission(_address);
+    Wire.write(0x40); // Co = 0, D/C# = 1 (Data stream)
+    for (uint16_t i = 0; i < len; i++) {
+        Wire.write(data[i]);
+    }
+    Wire.endTransmission();
+#else
+    (void)data; (void)len;
+#endif
+}
+
+void OledDisplay::setCursor(uint8_t page, uint8_t col) {
+    sendCommand(0xB0 | (page & 0x07));
+    sendCommand(0x00 | (col & 0x0F));
+    sendCommand(0x10 | ((col >> 4) & 0x0F));
+}
+
+bool OledDisplay::begin(uint8_t sda_pin, uint8_t scl_pin, uint32_t frequency) {
+#ifdef ARDUINO
+    Wire.begin(sda_pin, scl_pin, frequency);
+
+    // 1. Probe display presence
+    Wire.beginTransmission(_address);
+    if (Wire.endTransmission() != 0) {
+        _address = (_address == OLED_I2C_ADDR_DEFAULT) ? OLED_I2C_ADDR_ALT : OLED_I2C_ADDR_DEFAULT;
+        Wire.beginTransmission(_address);
+        if (Wire.endTransmission() != 0) {
+            _connected = false;
+            return false;
+        }
+    }
+
+    // 2. SSD1306 Initialization sequence
+    static const uint8_t init_cmds[] = {
+        0xAE,       // Display OFF
+        0xD5, 0x80, // Set display clock divide ratio/oscillator frequency
+        0xA8, 0x3F, // Set multiplex ratio (1 to 64) -> 64MUX
+        0xD3, 0x00, // Set display offset
+        0x40,       // Set start line address = 0
+        0x8D, 0x14, // Enable charge pump regulator
+        0x20, 0x02, // Set Memory Addressing Mode -> Page Addressing Mode
+        0xA1,       // Set Segment Re-map (column 127 is mapped to SEG0)
+        0xC8,       // Set COM Output Scan Direction (remapped)
+        0xDA, 0x12, // Set COM Pins Hardware Configuration
+        0x81, 0xCF, // Set Contrast Control
+        0xD9, 0xF1, // Set Pre-charge Period
+        0xDB, 0x40, // Set VCOMH Deselect Level
+        0xA4,       // Entire Display ON (resume from RAM)
+        0xA6,       // Set Normal Display (non-inverted)
+        0xAF        // Display ON
+    };
+
+    for (size_t i = 0; i < sizeof(init_cmds); i++) {
+        sendCommand(init_cmds[i]);
+    }
+
+    _connected = true;
+    clear();
+    return true;
+#else
+    (void)sda_pin; (void)scl_pin; (void)frequency;
+    _connected = false;
+    return false;
+#endif
+}
+
+bool OledDisplay::isConnected() const {
+    return _connected;
+}
+
+void OledDisplay::clear() {
+    if (!_connected) return;
+
+    uint8_t zero_block[16];
+    memset(zero_block, 0x00, sizeof(zero_block));
+
+    for (uint8_t page = 0; page < 8; page++) {
+        setCursor(page, 0);
+        for (uint8_t chunk = 0; chunk < 8; chunk++) {
+            sendData(zero_block, 16);
+        }
+    }
+}
+
+void OledDisplay::printLine(uint8_t line, const char *text, uint8_t start_col) {
+    if (!_connected || !text || line >= 8) return;
+
+    setCursor(line, start_col);
+
+    size_t len = strlen(text);
+    uint8_t col = start_col;
+
+    for (size_t i = 0; i < len; i++) {
+        char c = text[i];
+        if (col + 6 > 128) break; // Exceeds screen width
+
+        if (c < 32 || c > 126) {
+            c = ' '; // Replace non-printables
+        }
+
+        uint16_t font_idx = (c - 32) * 5;
+        uint8_t char_bytes[6];
+        char_bytes[0] = font5x7[font_idx + 0];
+        char_bytes[1] = font5x7[font_idx + 1];
+        char_bytes[2] = font5x7[font_idx + 2];
+        char_bytes[3] = font5x7[font_idx + 3];
+        char_bytes[4] = font5x7[font_idx + 4];
+        char_bytes[5] = 0x00; // 1-pixel inter-character spacing
+
+        sendData(char_bytes, 6);
+        col += 6;
+    }
+
+    // Blank out remaining columns on this line to erase older text
+    if (col < 128) {
+        uint8_t blank_len = 128 - col;
+        uint8_t zeros[16];
+        memset(zeros, 0, sizeof(zeros));
+        while (blank_len > 0) {
+            uint8_t to_write = (blank_len > 16) ? 16 : blank_len;
+            sendData(zeros, to_write);
+            blank_len -= to_write;
+        }
+    }
+}
+
+void OledDisplay::updateTelemetry(bool is_transmitting, uint32_t pkt_count, uint8_t seq,
+                                 int16_t ax_mg, int16_t ay_mg, int16_t az_mg,
+                                 int16_t temp_cdeg, bool imu_simulated) {
+    if (!_connected) return;
+
+    char line_buf[24];
+
+    // Line 0: Header
+    snprintf(line_buf, sizeof(line_buf), "TX:125k %s %s",
+             is_transmitting ? "[TX]" : "[IDLE]",
+             imu_simulated ? "(SIM)" : "(HW)");
+    printLine(0, line_buf);
+
+    // Line 2: Packet Telemetry
+    snprintf(line_buf, sizeof(line_buf), "PKT:#%04u [Sq:%03u]",
+             (unsigned int)(pkt_count % 10000), (unsigned int)seq);
+    printLine(2, line_buf);
+
+    // Line 4: Acceleration vector (g)
+    float ax_g = (float)ax_mg / 1000.0f;
+    float ay_g = (float)ay_mg / 1000.0f;
+    float az_g = (float)az_mg / 1000.0f;
+    snprintf(line_buf, sizeof(line_buf), "%+0.2f %+0.2f %+0.2fg", ax_g, ay_g, az_g);
+    printLine(4, line_buf);
+
+    // Line 6: Inferred Angles & Temp
+    float pitch = atan2f((float)ax_mg, sqrtf((float)ay_mg * (float)ay_mg + (float)az_mg * (float)az_mg)) * (180.0f / 3.14159265f);
+    float roll  = atan2f((float)ay_mg, (float)az_mg) * (180.0f / 3.14159265f);
+    float temp_c = (float)temp_cdeg / 100.0f;
+    snprintf(line_buf, sizeof(line_buf), "P:%+02.0f R:%+02.0f %0.1fC", pitch, roll, temp_c);
+    printLine(6, line_buf);
+}

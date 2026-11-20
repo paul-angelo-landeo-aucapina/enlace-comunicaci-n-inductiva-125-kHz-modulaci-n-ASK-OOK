@@ -183,43 +183,49 @@ La simulación en el dominio de la frecuencia en SPICE (Fig.~\ref{fig:bode_tanqu
 \label{fig:bode_tanques}
 \end{figure}
 
-\subsection{Oscilogramas del Enlace Nominal y Verificación de Recepción}
+\subsection{Simulación Numérica Discreta del Enlace Nominal y Oscilogramas}
 \label{subsec:oscilogramas}
 
-Al restituir la configuración nominal con inductores sintonizados de \SI{1.0}{\milli\henry}, el enlace recuperó la operación plena:
+Ante la imposibilidad de disponer de los inductores comerciales de \SI{1.0}{\milli\henry} en el laboratorio para el registro físico bajo sintonía nominal, la verificación funcional completa del enlace se llevó a cabo mediante un simulador numérico discreto en Python (\texttt{numpy}, \texttt{matplotlib}), cuya arquitectura extremo a extremo se ilustra en la Fig.~\ref{fig:montaje_experimental}. El modelo replica con exactitud de muestreo ($f_s = \SI{1.25}{\mega\hertz}$, 10 muestras por ciclo de portadora) la conmutación digital en TX, la respuesta transitoria del tanque serie, la atenuación del canal inductivo de Biot-Savart, el polo de corte por ancho de banda finito ($\text{GBW} = \SI{1.0}{\mega\hertz}$) del preamplificador MCP6002, la no linealidad del diodo Schottky BAT85 y la conmutación con histéresis del comparador LM393.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.88\columnwidth]{placeholder_montaje.png}
-\caption{Banco de pruebas experimental: soporte milimétrico en PLA, bobinas RFID LF coaxiales de \SI{1.0}{\milli\henry} sintonizadas y circuitos TX/RX gobernados por microcontroladores ESP32.}
+\includegraphics[width=0.98\columnwidth]{sim_montaje_enlace.pdf}
+\caption{Arquitectura del modelo de simulación discreta extremo a extremo del enlace inductivo a \SI{125}{\kilo\hertz}: generación de tramas con CRC-8 y codificación Manchester en ESP32 TX, excitación cuasiestática por driver TC4427A, canal de Biot-Savart, tanque sintonizado RX, preamplificación con límite GBW (MCP6002), detección de pico (BAT85) y conformador (LM393).}
 \label{fig:montaje_experimental}
 \end{figure}
 
+En la Fig.~\ref{fig:osc_tx} se presenta el oscilograma simulado del transmisor. El Canal 1 (arriba) exhibe la moduladora digital en \texttt{GPIO18} con semi-períodos de \SI{2.0}{\milli\second} ($R_b = \SI{250}{\text{bps}}$). El Canal 2 (abajo) muestra las ráfagas sinusoidales generadas sobre la bobina serie ($V_{\text{pp}} \approx \SI{6.36}{\volt}$), evidenciando los transitorios de subida y bajada amortiguados por la constante de tiempo del tanque ($\tau \approx \SI{12.2}{\micro\second}$).
+
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.88\columnwidth]{placeholder_osc_tx.png}
-\caption{Oscilograma en el transmisor nominal: moduladora digital OOK en \texttt{GPIO18} (arriba) y portadora de \SI{125}{\kilo\hertz} entregada a la bobina serie (abajo).}
+\includegraphics[width=0.92\columnwidth]{sim_osc_tx.pdf}
+\caption{Oscilograma simulado en el transmisor nominal: moduladora digital Manchester en \texttt{GPIO18} (arriba, 1.00 V/div) y ráfagas de portadora de \SI{125}{\kilo\hertz} excitadas en el tanque serie (abajo, 1.00 V/div).}
 \label{fig:osc_tx}
 \end{figure}
 
+En la Fig.~\ref{fig:osc_rx_amp} se ilustra el comportamiento analógico de recepción a la distancia límite de diseño ($z = \SI{7.0}{\centi\meter}$). La tensión inducida en el tanque paralelo (Canal 1, arriba) es de apenas \SI{30.2}{\milli\volt}$_{\text{pp}}$, sumergida en el piso de ruido térmico. La salida de la segunda etapa del MCP6002 (Canal 2, abajo) entrega una señal preamplificada de \SI{562}{\milli\volt}$_{\text{pp}}$ centrada sobre la masa virtual de \SI{1.65}{\volt}, reproduciendo fielmente la atenuación impuesta por los polos dinámicos de corte a \SI{128.2}{\kilo\hertz} y \SI{175.4}{\kilo\hertz}.
+
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.88\columnwidth]{placeholder_osc_rx_amp.png}
-\caption{Oscilograma en recepción: señal débil en el tanque LC paralelo (arriba) y señal amplificada a la salida del MCP6002 (abajo).}
+\includegraphics[width=0.92\columnwidth]{sim_osc_rx_amp.pdf}
+\caption{Oscilograma simulado en recepción ($z = \SI{7.0}{\centi\meter}$): tensión inducida en el tanque LC paralelo (arriba, 10.0 mV/div) y señal preamplificada a la salida del MCP6002 sobre masa virtual de \SI{1.65}{\volt} (abajo, 200 mV/div).}
 \label{fig:osc_rx_amp}
 \end{figure}
 
+En la Fig.~\ref{fig:osc_demod} se visualiza la etapa de detección de envolvente y digitalización. La señal rectificada por el diodo BAT85 y filtrada por la red $R_7 C_6$ ($\tau = \SI{1.0}{\milli\second}$) decae más del \SI{86}{\percent} durante los semi-símbolos apagados, cruzando limpiamente el umbral de decisión $V_{\text{th}} = \SI{0.30}{\volt}$. La salida del comparador LM393 (Canal 2, abajo) conmuta entre \SI{0}{\volt} y \SI{3.3}{\volt} entregando pulsos Manchester nítidos sin distorsión por ISI a la entrada \texttt{GPIO19} del ESP32.
+
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.88\columnwidth]{placeholder_osc_demod.png}
-\caption{Demodulación y conformación: envolvente filtrada a la salida del diodo BAT85 (arriba) y pulsos digitales conformados hacia el ESP32 (abajo).}
+\includegraphics[width=0.92\columnwidth]{sim_osc_demod.pdf}
+\caption{Demodulación y conformación digital simulada: envolvente filtrada a la salida del diodo BAT85 con constante $\tau = \SI{1.0}{\milli\second}$ frente al umbral de \SI{0.30}{\volt} con banda de histéresis de $\pm\SI{25}{\milli\volt}$ (arriba) y pulsos digitales conformados hacia el ESP32 (abajo).}
 \label{fig:osc_demod}
 \end{figure}
 
-\subsection{Mediciones Experimentales vs. Modelo y Verificación Digital}
+\subsection{Comparación entre Modelo Analítico y Simulación Numérica}
 \label{subsec:mediciones_experimentales}
 
-Se efectuaron barridos sistemáticos de distancia axial entre \SI{1.0}{\centi\meter} y \SI{10.0}{\centi\meter}. En cada distancia se enviaron 100 tramas consecutivas con carga útil de 8 bytes, validando su recepción mediante el checksum CRC-8.
+Se evaluaron sistemáticamente las tensiones inducidas en función de la distancia axial entre \SI{1.0}{\centi\meter} y \SI{10.0}{\centi\meter}. En cada distancia se procesaron numéricamente 100 tramas consecutivas con carga útil de 8 bytes, validando su recepción mediante el checksum CRC-8 y la máquina de estados del firmware:
 
 \begin{table}[htbp]
 \caption{Contraste de Tensión Inducida en el Tanque RX y Verificación de Recepción}

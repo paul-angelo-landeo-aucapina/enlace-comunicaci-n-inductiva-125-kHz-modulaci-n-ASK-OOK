@@ -1,0 +1,360 @@
+\section{Apéndice A: Firmware Base del Enlace Inductivo (ESP32)}
+\label{sec:apendice_firmware}
+
+En este apéndice se documenta el código fuente íntegro de la arquitectura base del firmware de transmisión y recepción para microcontroladores ESP32 DevKitC previo a la incorporación de sensores I2C y pantallas OLED. El diseño implementa modulación ASK/OOK con codificación Manchester conforme a IEEE 802.3 a \SI{250}{\text{bps}}, temporización por hardware no bloqueante y decodificación por interrupciones con filtrado anti-glitch.
+
+\subsection{Arquitectura del Firmware Transmisor}
+
+El transmisor estructura los datos en tramas que integran preámbulo (\texttt{0xAA}), delimitador de inicio (\texttt{0x7E}), longitud, carga útil y checksum CRC-8 ($P(x) = x^8 + x^2 + x + 1$). Para evitar el \textit{jitter} del planificador de FreeRTOS, la emisión de símbolos Manchester se ejecuta mediante un temporizador periódico de hardware de microsegundos (\texttt{esp\_timer}) configurado a \SI{500}{\hertz} ($T_{\text{half}} = \SI{2000}{\micro\second}$).
+
+\begin{lstlisting}[style=customcpp, caption={Configuración general del transmisor (\texttt{firmware\_tx/config.h})}]
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#include <stdint.h>
+
+// Asignacion de pines de hardware (ESP32 TX)
+#define TX_PIN                 18       // GPIO18: Gating ~RST pin 4 del TLC555
+#define LED_PIN                2        // GPIO2: LED de actividad de transmision
+#define SERIAL_BAUD            115200   // Baudrate de consola serie de diagnostico
+
+// Parametros temporales Manchester 250 bps
+// T_bit  = 1 / 250 bps = 4000 us
+// T_half = 2000 us (intervalo de semi-simbolo IEEE 802.3)
+#define T_NOMINAL_BIT_US       4000
+#define T_NOMINAL_HALF_US      2000
+
+// Intervalo de guarda entre tramas consecutivas (reseteo de timeout en RX)
+#define T_GUARD_INTERVAL_MS    25
+
+// Protocolo y delimitadores de trama
+#define PREAMBLE_BYTE          0xAA     // Patron 10101010 de sincronismo
+#define PREAMBLE_COUNT         2        // 2 bytes de preambulo (16 transiciones)
+#define SFD_BYTE               0x7E     // Delimitador de inicio de trama (01111110)
+#define MAX_PAYLOAD_LEN        32       // Longitud maxima de carga util en bytes
+#define RX_FIFO_SIZE           64
+
+// Longitud maxima: 2 Preambulos + 1 SFD + 1 Len + 32 Payload + 1 CRC = 37 bytes
+#define MAX_FRAME_BYTES        (PREAMBLE_COUNT + 1 + 1 + MAX_PAYLOAD_LEN + 1)
+#define MAX_SYMBOLS            (MAX_FRAME_BYTES * 8 * 2)
+
+// Polinomio generador CRC-8: x^8 + x^2 + x + 1 (0x07, valor inicial 0x00)
+#define CRC8_POLYNOMIAL        0x07
+#define CRC8_INIT              0x00
+
+#endif // CONFIG_H
+\end{lstlisting}
+
+\begin{lstlisting}[style=customcpp, caption={Constructor de paquetes y cálculo de CRC-8 (\texttt{firmware\_tx/packet\_builder.cpp})}]
+#include "packet_builder.h"
+#include <string.h>
+
+PacketBuilder::PacketBuilder() { reset(); }
+void PacketBuilder::reset() {}
+
+uint8_t PacketBuilder::updateCRC8(uint8_t crc, uint8_t byte) {
+    crc ^= byte;
+    for (uint8_t i = 0; i < 8; i++) {
+        if (crc & 0x80) {
+            crc = (crc << 1) ^ CRC8_POLYNOMIAL;
+        } else {
+            crc = (crc << 1);
+        }
+    }
+    return crc;
+}
+
+uint8_t PacketBuilder::calculateCRC8(const uint8_t *data, uint8_t len) {
+    uint8_t crc = CRC8_INIT;
+    for (uint8_t i = 0; i < len; i++) {
+        crc = updateCRC8(crc, data[i]);
+    }
+    return crc;
+}
+
+bool PacketBuilder::buildPacket(const uint8_t *payload, uint8_t length,
+                                uint8_t *out_buffer, uint16_t max_out_len,
+                                uint16_t *actual_out_len) {
+    if (!payload || length == 0 || length > MAX_PAYLOAD_LEN ||
+        !out_buffer || !actual_out_len) {
+        return false;
+    }
+
+    uint16_t total_len = PREAMBLE_COUNT + 1 + 1 + length + 1;
+    if (total_len > max_out_len) return false;
+
+    uint16_t idx = 0;
+    // 1. Preambulo de sincronizacion (0xAA)
+    for (uint8_t i = 0; i < PREAMBLE_COUNT; i++) {
+        out_buffer[idx++] = PREAMBLE_BYTE;
+    }
+    // 2. Delimitador de inicio (SFD 0x7E)
+    out_buffer[idx++] = SFD_BYTE;
+    // 3. Longitud de carga util
+    out_buffer[idx++] = length;
+    // 4. Copia de datos
+    memcpy(&out_buffer[idx], payload, length);
+    idx += length;
+    // 5. Calculo CRC-8 sobre [Longitud] + [Payload]
+    uint8_t crc = calculateCRC8(&length, 1);
+    for (uint8_t i = 0; i < length; i++) {
+        crc = updateCRC8(crc, payload[i]);
+    }
+    out_buffer[idx++] = crc;
+
+    *actual_out_len = idx;
+    return true;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=customcpp, caption={Codificador Manchester y temporizador de hardware (\texttt{firmware\_tx/manchester\_tx.cpp})}]
+#include "manchester_tx.h"
+#include <string.h>
+#include <Arduino.h>
+
+#ifdef ESP32
+void IRAM_ATTR ManchesterTx::onTimerTick(void* arg) {
+    ManchesterTx* instance = reinterpret_cast<ManchesterTx*>(arg);
+    if (instance) instance->tick();
+}
+#endif
+
+ManchesterTx::ManchesterTx()
+    : _tx_pin(TX_PIN), _led_pin(LED_PIN), _is_transmitting(false),
+      _continuous_carrier(false), _total_symbols(0), _current_symbol_idx(0),
+      _tx_start_time_ms(0), _stats{0, 0, 0}
+#ifdef ESP32
+      , _timer_handle(nullptr)
+#endif
+{
+    memset(_symbols, 0, sizeof(_symbols));
+}
+
+void ManchesterTx::begin(uint8_t tx_pin, uint8_t led_pin) {
+    _tx_pin = tx_pin; _led_pin = led_pin;
+    pinMode(_tx_pin, OUTPUT); digitalWrite(_tx_pin, LOW);
+    pinMode(_led_pin, OUTPUT); digitalWrite(_led_pin, LOW);
+    _is_transmitting = false; _continuous_carrier = false;
+
+#ifdef ESP32
+    if (_timer_handle == nullptr) {
+        const esp_timer_create_args_t timer_args = {
+            .callback = &ManchesterTx::onTimerTick,
+            .arg = this,
+            .dispatch_method = ESP_TIMER_TASK,
+            .name = "manchester_tx_timer"
+        };
+        esp_timer_create(&timer_args, &_timer_handle);
+    }
+#endif
+}
+
+void ManchesterTx::encodeManchester(const uint8_t *data, uint16_t len) {
+    uint16_t sym_idx = 0;
+    for (uint16_t i = 0; i < len; i++) {
+        uint8_t byte = data[i];
+        for (int8_t b = 7; b >= 0; b--) {
+            uint8_t bit = (byte >> b) & 0x01;
+            // Definicion Manchester IEEE 802.3:
+            // Bit 0: Flanco ascendente en punto medio -> LOW luego HIGH
+            // Bit 1: Flanco descendente en punto medio -> HIGH luego LOW
+            if (bit == 0) {
+                _symbols[sym_idx++] = 0;
+                _symbols[sym_idx++] = 1;
+            } else {
+                _symbols[sym_idx++] = 1;
+                _symbols[sym_idx++] = 0;
+            }
+        }
+    }
+    _total_symbols = sym_idx;
+    _current_symbol_idx = 0;
+}
+
+bool ManchesterTx::sendPacket(const uint8_t *frame_data, uint16_t frame_len) {
+    if (!frame_data || frame_len == 0 || frame_len > MAX_FRAME_BYTES) return false;
+    if (_is_transmitting || _continuous_carrier) return false;
+
+    encodeManchester(frame_data, frame_len);
+    _tx_start_time_ms = millis();
+    _is_transmitting = true;
+    digitalWrite(_led_pin, HIGH);
+
+#ifdef ESP32
+    if (_timer_handle != nullptr) {
+        esp_timer_start_periodic(_timer_handle, T_NOMINAL_HALF_US);
+    }
+#endif
+    return true;
+}
+
+void IRAM_ATTR ManchesterTx::tick() {
+    if (!_is_transmitting) return;
+
+    if (_current_symbol_idx < _total_symbols) {
+        uint8_t symbol = _symbols[_current_symbol_idx++];
+        digitalWrite(_tx_pin, symbol ? HIGH : LOW);
+        _stats.total_symbols_sent++;
+    } else {
+        digitalWrite(_tx_pin, LOW);
+        digitalWrite(_led_pin, LOW);
+        _is_transmitting = false;
+#ifdef ESP32
+        if (_timer_handle != nullptr) esp_timer_stop(_timer_handle);
+#endif
+        _stats.packets_sent++;
+        _stats.last_tx_duration_ms = millis() - _tx_start_time_ms;
+    }
+}
+\end{lstlisting}
+
+\subsection{Arquitectura del Firmware Receptor}
+
+El receptor decodifica en tiempo real la señal digital entregada por el comparador LM393 en el pin \texttt{GPIO19}. La rutina de interrupción (\texttt{IRAM\_ATTR isr\_rx\_edge}) mide el tiempo entre transiciones consecutivas, descartando transitorios menores a \SI{600}{\micro\second} e identificando si el pulso corresponde a medio período ($T_{\text{half}} \approx \SI{2000}{\micro\second}$) o a un período completo ($T_{\text{bit}} \approx \SI{4000}{\micro\second}$) con ventana de tolerancia de $\pm 25\%$.
+
+\begin{lstlisting}[style=customcpp, caption={Decodificador Manchester asíncrono con filtrado anti-glitch (\texttt{firmware\_rx/manchester\_rx.cpp})}]
+#include "manchester_rx.h"
+#include <string.h>
+
+ManchesterRx::ManchesterRx() { reset(); }
+
+void ManchesterRx::reset() {
+    _last_edge_us = 0;
+    _rx_state = RX_IDLE;
+    _bit_buffer = 0;
+    _bit_count = 0;
+    _fifo_head = 0;
+    _fifo_tail = 0;
+    _fifo_count = 0;
+    _glitch_count = 0;
+    _sync_error_count = 0;
+    _total_bits_received = 0;
+    _last_pin_level = false;
+}
+
+void IRAM_ATTR ManchesterRx::handleEdge(uint32_t now_us, bool pin_level) {
+    if (_last_edge_us == 0) {
+        _last_edge_us = now_us;
+        _last_pin_level = pin_level;
+        return;
+    }
+
+    uint32_t dt = now_us - _last_edge_us;
+    _last_edge_us = now_us;
+    _last_pin_level = pin_level;
+
+    // Filtro anti-glitch: descarta transitorios menores a 600 us
+    if (dt < T_MIN_PULSE_US) {
+        _glitch_count++;
+        return;
+    }
+
+    // Timeout de inactividad: reinicia el decodificador
+    if (dt > T_TIMEOUT_US) {
+        reset();
+        _last_edge_us = now_us;
+        return;
+    }
+
+    // Clasificacion temporal: Half-bit (1400-2600 us) o Full-bit (2800-5200 us)
+    bool is_half = (dt >= T_HALF_MIN_US && dt <= T_HALF_MAX_US);
+    bool is_full = (dt >= T_BIT_MIN_US  && dt <= T_BIT_MAX_US);
+
+    if (!is_half && !is_full) {
+        _sync_error_count++;
+        reset();
+        return;
+    }
+
+    // Maquina de estados Manchester IEEE 802.3
+    switch (_rx_state) {
+        case RX_IDLE:
+            if (is_half) _rx_state = RX_MID_BIT;
+            break;
+
+        case RX_MID_BIT:
+            if (is_half) {
+                // Transicion intermedia: flanco define el bit
+                uint8_t bit = pin_level ? 0 : 1;
+                pushBit(bit);
+                _rx_state = RX_START_BIT;
+            } else {
+                _sync_error_count++;
+                reset();
+            }
+            break;
+
+        case RX_START_BIT:
+            if (is_half) {
+                _rx_state = RX_MID_BIT;
+            } else if (is_full) {
+                uint8_t bit = pin_level ? 0 : 1;
+                pushBit(bit);
+            }
+            break;
+    }
+}
+
+void ManchesterRx::pushBit(uint8_t bit) {
+    _bit_buffer = (_bit_buffer << 1) | (bit & 0x01);
+    _bit_count++;
+    _total_bits_received++;
+
+    if (_bit_count >= 8) {
+        if (_fifo_count < RX_FIFO_SIZE) {
+            _fifo[_fifo_head] = (uint8_t)(_bit_buffer & 0xFF);
+            _fifo_head = (_fifo_head + 1) % RX_FIFO_SIZE;
+            _fifo_count++;
+        }
+        _bit_buffer = 0;
+        _bit_count = 0;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=customcpp, caption={Bucle principal del firmware receptor (\texttt{firmware\_rx/firmware\_rx.ino})}]
+#include <Arduino.h>
+#include "config.h"
+#include "manchester_rx.h"
+#include "packet_parser.h"
+
+ManchesterRx rxDecoder;
+PacketParser parser;
+static uint32_t packet_counter = 0;
+
+void IRAM_ATTR isr_rx_edge() {
+    uint32_t now_us = (uint32_t)esp_timer_get_time();
+    bool pin_level = (digitalRead(RX_PIN) == HIGH);
+    rxDecoder.handleEdge(now_us, pin_level);
+}
+
+void setup() {
+    Serial.begin(SERIAL_BAUD);
+    delay(1000);
+    Serial.println("\n==========================================");
+    Serial.println("  ESP32 125 kHz Manchester Receiver (250 bps)");
+    Serial.println("==========================================");
+
+    pinMode(RX_PIN, INPUT_PULLUP);
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
+
+    attachInterrupt(digitalPinToInterrupt(RX_PIN), isr_rx_edge, CHANGE);
+}
+
+void loop() {
+    uint8_t byte_in;
+    while (rxDecoder.readByte(&byte_in)) {
+        if (parser.processByte(byte_in)) {
+            packet_counter++;
+            digitalWrite(LED_PIN, HIGH);
+            Serial.printf("[PKT #%u] Len: %u | Status: %s | CRC: 0x%02X\n",
+                          packet_counter, parser.getPayloadLength(),
+                          parser.isCRCValid() ? "VALID" : "CRC_FAIL",
+                          parser.getReceivedCRC());
+            delay(10);
+            digitalWrite(LED_PIN, LOW);
+        }
+    }
+}
+\end{lstlisting}

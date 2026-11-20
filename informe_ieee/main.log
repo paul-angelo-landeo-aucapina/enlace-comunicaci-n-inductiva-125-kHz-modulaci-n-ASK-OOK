@@ -611,11 +611,20 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 90.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
-) (secciones/01_introduccion.tex [1
+)
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 93
+.
+ (t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+)
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `pcr' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+ (secciones/01_introduccion.tex [1
 
 
-])
-(secciones/02_metodologia.tex [2]
+]) (secciones/02_metodologia.tex [2]
 Overfull \hbox (56.72636pt too wide) detected at line 98
 []\OML/cmm/m/it/10 L[] \OT1/cmr/m/n/10 = \OML/cmm/m/it/10 ^^V[]^^V[][] \OMS/cms
 y/m/n/10 ^^Y \OT1/cmr/m/n/10 (4\OML/cmm/m/it/10 ^^Y \OMS/cmsy/m/n/10 ^^B \OT1/c
@@ -647,15 +656,6 @@ Overfull \hbox (84.03586pt too wide) detected at line 123
  01 \OMS/cmsy/m/n/10 ^^B \OT1/cmr/m/n/10 10[] A m[]
  []
 
-LaTeX Font Info:    Trying to load font information for T1+pcr on input line 14
-0.
-(t1pcr.fd
-File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-)
-Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `pcr' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
 
 Underfull \hbox (badness 1715) in paragraph at lines 142--143
 []\T1/ptm/b/n/10 Tanque Re-so-nan-te Se-rie TX: \T1/ptm/m/n/10 Re-sis-tor de lí
@@ -735,43 +735,50 @@ File: figuras//acoplamiento_k_distancia.pdf Graphic file (type pdf)
 <use figuras//acoplamiento_k_distancia.pdf>
 File: figuras//respuesta_frecuencia_tanques.pdf Graphic file (type pdf)
 <use figuras//respuesta_frecuencia_tanques.pdf>
-File: figuras//placeholder_montaje.png Graphic file (type bmp)
-<figuras//placeholder_montaje.png>
-File: figuras//placeholder_osc_tx.png Graphic file (type bmp)
-<figuras//placeholder_osc_tx.png>
-File: figuras//placeholder_osc_rx_amp.png Graphic file (type bmp)
-<figuras//placeholder_osc_rx_amp.png>
-File: figuras//placeholder_osc_demod.png Graphic file (type bmp)
-<figuras//placeholder_osc_demod.png>
- [6]) (secciones/04_discusion_conclusiones.tex [7]
+File: figuras//sim_montaje_enlace.pdf Graphic file (type pdf)
+<use figuras//sim_montaje_enlace.pdf>
+File: figuras//sim_osc_tx.pdf Graphic file (type pdf)
+<use figuras//sim_osc_tx.pdf>
+ [6]
+File: figuras//sim_osc_rx_amp.pdf Graphic file (type pdf)
+<use figuras//sim_osc_rx_amp.pdf>
+File: figuras//sim_osc_demod.pdf Graphic file (type pdf)
+<use figuras//sim_osc_demod.pdf>
+ [7]) (secciones/04_discusion_conclusiones.tex [8]
 Underfull \hbox (badness 1789) in paragraph at lines 37--38
 []\T1/ptm/m/it/10 Mitigación: \T1/ptm/m/n/10 El tan-que re-so-nan-te sin-to-ni-
 za-do a
  []
 
-[8]
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 5
 4.
- (ts1ptm.fd
+(ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)
+) [9]
 Underfull \hbox (badness 2503) in paragraph at lines 90--91
 []\T1/ptm/b/n/10 Transferencia Si-mul-tá-nea de Po-ten-cia y Da-tos
  []
 
-) (main.bbl) (secciones/05_anexo_firmware.tex [9] (lstlang1.sty
+) (main.bbl) (secciones/05_anexo_firmware.tex (lstlang1.sty
 File: lstlang1.sty 2020/03/24 1.8d listings language file
 ) (lstlang1.sty
 File: lstlang1.sty 2020/03/24 1.8d listings language file
-) (lstmisc.sty
+)
+(lstmisc.sty
 File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
-) [10]
+) [10] [11]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [11])
-(secciones/06_anexo_simulacion.tex (lstlang1.sty
+)
+(secciones/06_anexo_simulacion.tex [12] (lstlang1.sty
 File: lstlang1.sty 2020/03/24 1.8d listings language file
-) [12])
+) [13]
+Overfull \hbox (2.1281pt too wide) in paragraph at lines 201--201
+\T1/ptm/m/n/8 (\T1/pcr/m/n/8 informe_ieee/datos/generar_oscilogramas_simulados.
+py\T1/ptm/m/n/8 ) 
+ []
+
+)
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -783,7 +790,7 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[13] (main.aux
+[14] (main.aux
 LaTeX Info: Redefining \. on input line 11.
 LaTeX Info: Redefining \% on input line 11.
 )
@@ -791,4 +798,4 @@ LaTeX Info: Redefining \% on input line 11.
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  )
-Output written on main.xdv (13 pages, 308612 bytes).
+Output written on main.xdv (14 pages, 329776 bytes).

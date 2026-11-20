@@ -1,0 +1,31 @@
+\section{Introducción}
+\label{sec:introduccion}
+
+La transferencia inalámbrica de información en distancias ultracortas ha adquirido una relevancia fundamental en aplicaciones biomédicas implantables, identificación por radiofrecuencia (RFID), sistemas de acceso seguro y sensores embebidos en entornos hostiles~\cite{finkenzeller2010rfid}. A diferencia de los enlaces de radiofrecuencia convencionales que operan en campo lejano radiado (bandas de UHF o microondas), los sistemas inductivos de baja frecuencia (LF, típicamente a \SI{125}{\kilo\hertz}) basan su funcionamiento en el acoplamiento magnético reactivo cuasiestático.
+
+A una frecuencia portadora de $f_0 = \SI{125}{\kilo\hertz}$, la longitud de onda asociada en el espacio libre es:
+\begin{equation}
+    \lambda = \frac{c}{f_0} = \frac{\SI{3e8}{\meter\per\second}}{\SI{125e3}{\hertz}} = \SI{2.4}{\kilo\meter}
+    \label{eq:longitud_onda}
+\end{equation}
+La frontera del campo cercano reactivo de Rayleigh, definida por el radio de transición:
+\begin{equation}
+    r_b = \frac{\lambda}{2\pi} \approx \SI{382}{\meter}
+    \label{eq:frontera_rayleigh}
+\end{equation}
+demuestra que para separaciones operativas comprendidas entre \SI{0}{\centi\meter} y \SI{20}{\centi\meter}, la relación de distancia verifica con holgura $r \ll \lambda / (2\pi)$. Por consiguiente, los efectos de radiación electromagnética propagada y retardos de fase son despreciables, gobernando el enlace las leyes fundamentales de la magnetostática y la inducción cuasiestática de Faraday~\cite{hayt2012electromagnetics,sadiku2018electromagnetics}.
+
+La selección de la banda LF de \SI{125}{\kilo\hertz} confiere ventajas ingenieriles críticas:
+\begin{enumerate}
+    \item \textbf{Penetración en medios conductores y con pérdidas:} El campo predominantemente magnético sufre una atenuación drásticamente inferior en presencia de agua, tejidos biológicos y envolventes no ferrosas en comparación con campos electromagnéticos de microondas.
+    \item \textbf{Inmunidad frente a desvanecimiento:} Nula susceptibilidad a reflexiones multicamino (\textit{multipath fading}) o interferencias destructivas espaciales en recintos apantallados o cerrados.
+    \item \textbf{Implementabilidad circuital de bajo costo y consumo:} Posibilidad de sintetizar transmisores y receptores de alta confiabilidad con componentes analógicos discretos de precisión comercial y microcontroladores de propósito general~\cite{microchip2004microid}.
+\end{enumerate}
+
+El objetivo central del presente trabajo radica en diseñar, validar cuantitativamente y evaluar experimentalmente un enlace inductivo bidireccional en hardware. El documento se organiza siguiendo la estructura canónica requerida:
+\begin{itemize}
+    \item En la Sección~\ref{sec:metodologia} (\textbf{Metodología}) se formula el modelo electromagnético analítico, el diseño y dimensionamiento circuital de las etapas transmisora (TX) y receptora (RX), el modelado computacional y simulación SPICE, el protocolo digital en microcontrolador ESP32 y el montaje del banco de pruebas.
+    \item En la Sección~\ref{sec:resultados} (\textbf{Resultados}) se presentan los cálculos cuantitativos de ganancia, potencia estimada y presupuesto de enlace de datos, las curvas numéricas de simulación, los oscilogramas experimentales y la tabla comparativa de tensión inducida y tasa de error de paquete vs. distancia.
+    \item En la Sección~\ref{sec:discusion_conclusiones} (\textbf{Discusión y Conclusiones}) se examinan las fuentes de divergencia entre teoría y laboratorio, se analiza la barrera de conducción del diodo Schottky como cuello de botella físico, y se resumen las conclusiones y líneas de trabajo futuro.
+    \item Finalmente, en la Sección~\ref{sec:referencias} (\textbf{Referencias}) se compilan las fuentes bibliográficas de sustento.
+\end{itemize}

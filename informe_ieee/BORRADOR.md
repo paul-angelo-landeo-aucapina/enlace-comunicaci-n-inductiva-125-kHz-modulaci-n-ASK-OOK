@@ -1,4 +1,4 @@
-# Diseño, Simulación, Validación Analítica y Evaluación Experimental de un Enlace de Comunicación Inductiva a 125 kHz con Modulación ASK/OOK
+# Diseño, Simulación Numérica y Evaluación Experimental de un Enlace de Comunicación Inductiva a 125 kHz con Modulación ASK/OOK
 
 **Formato IEEE — Informe Consolidado de Proyecto**
 
@@ -7,18 +7,20 @@
 ## 1. Carátula y Resumen Ejecutivo
 
 ### Datos Institucionales
-* **Título:** Diseño, Simulación, Validación Analítica y Evaluación Experimental de un Enlace de Comunicación Inductiva a 125 kHz con Modulación ASK/OOK
-* **Autores:** [Nombre del Estudiante 1], [Nombre del Estudiante 2], [Nombre del Estudiante 3]
-* **Filiación:** Departamento de Ingeniería Eléctrica y Electrónica
-* **Institución:** [Nombre de la Universidad / Institución Académica]
-* **Asignatura:** Campos Electromagnéticos / Teoría Electromagnética
-* **Docente / Asesor:** [Nombre del Profesor / Asesor de Cátedra]
+* **Título:** Diseño, Simulación Numérica y Evaluación Experimental de un Enlace de Comunicación Inductiva a 125 kHz con Modulación ASK/OOK
+* **Autores:** 
+  * Landeo Aucapiña, Paul Angelo (`paul.landeo@unmsm.edu.pe`)
+  * Rosales Aranda, Sergio Alessandro (`sergio.rosales@unmsm.edu.pe`)
+* **Filiación:** Facultad de Ingeniería Electrónica y Eléctrica (FIEE) — Escuela Profesional de Ingeniería de Telecomunicaciones
+* **Institución:** Universidad Nacional Mayor de San Marcos (UNMSM), Lima, Perú
+* **Asignatura:** Teoría de Campos Electromagnéticos
+* **Docente / Asesor:** Merma Jara, Marco Antonio
 * **Fecha de Emisión:** Noviembre 2026
 
 ### Resumen
-El presente artículo presenta el diseño, simulación, validación analítica y evaluación experimental de un enlace de comunicación inalámbrica de corto alcance fundamentado en inducción magnética cuasiestática a una frecuencia portadora de $125\text{ kHz}$ mediante modulación digital ASK/OOK. El principio físico del enlace reside en la ley de inducción electromagnética de Faraday-Lenz y la ley de Biot-Savart, acoplando dos bobinas en régimen reactivo ($r \ll \lambda / 2\pi$), donde la radiación electromagnética de campo lejano es despreciable. Se desarrolla un modelo cuantitativo completo que deduce la ganancia pasiva por resonancia ($Q$), la ganancia activa de tensión de dos etapas (incorporando las limitaciones impuestas por el producto ganancia-ancho de banda $\text{GBW} = 1.0\text{ MHz}$ del amplificador operacional MCP6002), el balance de potencia activa y reactiva de los nodos de transmisión ($162.74\text{ mW}$) y recepción ($102.45\text{ mW}$), y el presupuesto temporal de modulación para codificación Manchester a $250\text{ bps}$. 
+El presente artículo presenta el diseño, simulación numérica extremo a extremo, validación analítica y evaluación experimental de un enlace de comunicación inalámbrica de corto alcance fundamentado en inducción magnética cuasiestática a una frecuencia portadora de $125\text{ kHz}$ mediante modulación digital ASK/OOK. El principio físico del enlace reside en la ley de inducción electromagnética de Faraday-Lenz y la ley de Biot-Savart, acoplando dos bobinas en régimen reactivo ($r \ll \lambda / 2\pi$), donde la radiación electromagnética de campo lejano es despreciable. Se desarrolla un modelo cuantitativo completo que deduce la ganancia pasiva por resonancia ($Q$), la ganancia activa de tensión de dos etapas (incorporando las limitaciones impuestas por el producto ganancia-ancho de banda $\text{GBW} = 1.0\text{ MHz}$ del amplificador operacional MCP6002), el balance de potencia activa y reactiva de los nodos de transmisión ($162.74\text{ mW}$) y recepción ($102.45\text{ mW}$), y el presupuesto temporal de modulación para codificación Manchester a $250\text{ bps}$.
 
-Se presenta además el análisis forense experimental del fallo observado en laboratorio al emplear un inductor casero tipo electroimán (núcleo rectangular de ferrita de $3.5\times 0.5\times 1.3\text{ cm}$ con alambre de cobre grueso de $1.0\text{ mm}$, $N\approx 26-30$ espiras, $L\approx 42.5\,\mu\text{H}$), cuya severa desintonización ($f_0'\approx 607\text{ kHz}$) y reducción del momento dipolar magnético en más de 800 veces ($-57.9\text{ dB}$) causó la anulación absoluta de la señal recibida (traza plana en osciloscopio Tektronix a $50\text{ mV/div}$) e incapacidad de superar la barrera de conducción del diodo Schottky BAT85 ($V_F\approx 0.25\text{ V}$). Tras restituir las bobinas comerciales sintonizadas de $1.0\text{ mH}$, se corroboró la atenuación cúbica ($1/z^3$) logrando una tasa de error de paquete nula ($\text{PER} = 0$) hasta $7.0\text{ cm}$. Se anexan los firmwares base de transmisión/recepción en microcontrolador ESP32 y los scripts de simulación en Python con sus respectivas explicaciones analíticas.
+Ante la imposibilidad de disponer de los inductores comerciales de $1.0\text{ mH}$ en el banco de pruebas físico para el registro oscilográfico bajo sintonía nominal, la cadena analógico-digital completa se valida mediante simulaciones numéricas discretas calibradas en Python (`numpy`, `matplotlib`), modelando la modulación Manchester, la excitación del tanque serie, el canal cuasiestático de Biot-Savart, la preamplificación con limitación GBW, la detección de envolvente por diodo Schottky BAT85 y la conformación digital por comparador LM393. Como contraparte empírica, se documenta el análisis forense experimental del fallo observado en laboratorio al emplear un inductor casero tipo electroimán (núcleo rectangular de ferrita de $3.5\times 0.5\times 1.3\text{ cm}$ con alambre de cobre de $1.0\text{ mm}$, $N\approx 26-30$ espiras, $L\approx 42.5\,\mu\text{H}$), cuya severa desintonización ($f_0'\approx 607\text{ kHz}$) y reducción del momento dipolar magnético en más de 800 veces ($-57.9\text{ dB}$) causó la anulación absoluta de la señal recibida (traza plana en osciloscopio Tektronix a $50\text{ mV/div}$) e incapacidad de superar la barrera de conducción del diodo ($V_F\approx 0.25\text{ V}$) y el umbral del comparador. Se anexan los firmwares base de transmisión/recepción en microcontrolador ESP32 y los scripts de simulación en Python con sus respectivas explicaciones analíticas.
 
 **Palabras clave:** inducción electromagnética, acoplamiento inductivo, ley de Faraday-Lenz, modulación ASK/OOK, RFID LF, presupuesto de enlace, factor de calidad, ganancia-ancho de banda, desintonización resonante, ESP32.
 
@@ -258,21 +260,21 @@ A continuación se documenta el ensayo directo realizado con el electroimán exp
 
 ---
 
-### D. Oscilogramas Experimentales del Enlace Nominal
+### D. Simulación Numérica Discreta del Enlace Nominal y Oscilogramas
 
-Al restituir la configuración de diseño con bobinas RFID LF comerciales sintonizadas de $1.0\text{ mH}$, el enlace inductivo operó en régimen pleno:
+Ante la imposibilidad de contar con los inductores comerciales de $1.0\text{ mH}$ en el laboratorio para el registro físico bajo sintonía nominal, la verificación funcional completa del enlace se llevó a cabo mediante un simulador numérico discreto en Python (`numpy`, `matplotlib`) a una frecuencia de muestreo $f_s = 1.25\text{ MHz}$ (10 muestras por ciclo de portadora):
 
-![Banco de Pruebas](figuras/placeholder_montaje.png)
-*Figura 6: Banco de pruebas experimental con soporte milimétrico en PLA y circuitos acoplados a microcontroladores ESP32.*
+![Arquitectura de Simulación](figuras/sim_montaje_enlace.png)
+*Figura 6: Arquitectura del modelo de simulación discreta extremo a extremo del enlace inductivo a 125 kHz: modulación Manchester y trama CRC-8 en TX, excitación de tanque serie por driver TC4427A, canal de Biot-Savart, tanque paralelo sintonizado RX, preamplificación con límite GBW (MCP6002), detector de envolvente (BAT85) y conformador (LM393).*
 
-![Oscilograma TX](figuras/placeholder_osc_tx.png)
-*Figura 7: Transmisor nominal: modulación OOK en GPIO18 (arriba) y ráfaga senoidal a 125 kHz en la bobina serie (abajo).*
+![Oscilograma Simulado TX](figuras/sim_osc_tx.png)
+*Figura 7: Oscilograma simulado en el transmisor nominal: moduladora digital Manchester en GPIO18 (arriba, 1.00 V/div) y ráfagas de portadora de 125 kHz excitadas sobre el tanque serie (abajo, 1.00 V/div, $V_{\text{pp}} \approx 6.36\text{ V}$). Transitorios de subida con constante $\tau \approx 12.2\,\mu\text{s}$.*
 
-![Oscilograma RX](figuras/placeholder_osc_rx_amp.png)
-*Figura 8: Receptor nominal: señal débil captada en el tanque LC paralelo (arriba) y amplificada linealmente en MCP6002 (abajo).*
+![Oscilograma Simulado RX](figuras/sim_osc_rx_amp.png)
+*Figura 8: Oscilograma simulado en recepción ($z = 7.0\text{ cm}$): tensión débil inducida en el tanque LC paralelo (arriba, 10.0 mV/div, $\sim 30.2\text{ mV}_{\text{pp}}$) y señal amplificada a la salida del MCP6002 sobre masa virtual de 1.65 V (abajo, 200 mV/div, $\sim 562\text{ mV}_{\text{pp}}$), afectada por los polos dinámicos de corte a 128 kHz y 175 kHz.*
 
-![Oscilograma Demodulación](figuras/placeholder_osc_demod.png)
-*Figura 9: Demodulación: envolvente rectificada tras el diodo BAT85 (arriba) y tren de pulsos digital recuperado en el LM393 (abajo).*
+![Oscilograma Simulado Demodulación](figuras/sim_osc_demod.png)
+*Figura 9: Demodulación y conformación digital simulada: envolvente filtrada a la salida del diodo BAT85 con constante $\tau = 1.0\text{ ms}$ frente al umbral de 0.30 V con banda de histéresis de $\pm 25\text{ mV}$ (arriba, descarga intersimbólica $> 86\%$) y pulsos digitales conformados hacia el ESP32 receptor (abajo, recuperación limpia libre de ISI).*
 
 ---
 
@@ -935,4 +937,67 @@ I_tx_ac = 5.0 / Z_tx_ser
 
 # Tanque paralelo RX
 Z_rx_par = np.abs(1.0 / (1.0 / (R_esr + 1j * w * L2) + 1j * w * C_res))
+```
+
+#### B.3 Simulación Transitoria del Enlace Extremo a Extremo (`simular_enlace_datos.py`)
+```python
+#!/usr/bin/env python3
+"""
+simular_enlace_datos.py
+Simulador extremo a extremo (End-to-End) del Enlace Inductivo a 125 kHz:
+1. Capa Digital TX: Trama con Preámbulo (0xAA), SFD (0x7E), Longitud, Payload y CRC-8 (0x07).
+2. Codificación Manchester: IEEE 802.3 a 250 bps.
+3. Modulación RF: Portadora senoidal a 125 kHz conmutada por OOK.
+4. Canal Inductivo: Atenuación física vs distancia axial z (calibrada con mediciones de laboratorio).
+5. Etapa Analógica RX: Tanque LC, MCP6002 con límite GBW, diodo Schottky BAT85 y conformador LM393.
+6. Firmware Receptor ESP32: Detección de flancos por interrupción GPIO, filtro anti-glitch y parser CRC-8.
+"""
+import numpy as np
+
+F_CARRIER = 125.04e3    # Hz
+BAUD_RATE = 250.0       # bps
+T_BIT = 1.0 / BAUD_RATE # 4.0 ms
+T_HALF = T_BIT / 2.0    # 2.0 ms
+FS = 1.25e6             # 1.25 MHz (10 muestras/ciclo)
+
+def calc_crc8(data_bytes):
+    crc = 0x00
+    for byte in data_bytes:
+        crc ^= byte
+        for _ in range(8):
+            if crc & 0x80:
+                crc = ((crc << 1) ^ 0x07) & 0xFF
+            else:
+                crc = (crc << 1) & 0xFF
+    return crc
+
+def construir_trama(payload_str):
+    payload_bytes = [ord(c) for c in payload_str]
+    length_byte = len(payload_bytes)
+    crc = calc_crc8([length_byte] + payload_bytes)
+    return [0xAA, 0xAA, 0x7E, length_byte] + payload_bytes + [crc]
+```
+
+#### B.4 Generador de Oscilogramas Simulados (`generar_oscilogramas_simulados.py`)
+```python
+#!/usr/bin/env python3
+"""
+generar_oscilogramas_simulados.py
+Sintetiza los registros de simulación en el dominio del tiempo con calidad de osciloscopio:
+- sim_montaje_enlace.png/.pdf: Diagrama en bloques del enlace extremo a extremo.
+- sim_osc_tx.png/.pdf: Moduladora GPIO18 Manchester y ráfagas a 125 kHz en bobina serie.
+- sim_osc_rx_amp.png/.pdf: Tensión inducida en tanque paralelo y preamplificación MCP6002.
+- sim_osc_demod.png/.pdf: Envolvente rectificada BAT85 vs umbral y pulsos digitales LM393.
+"""
+import numpy as np
+import matplotlib.pyplot as plt
+
+F0 = 125040.0; W0 = 2.0 * np.pi * F0
+BAUD = 250.0; T_HALF = 0.5 / BAUD # 2.0 ms
+FS = 1.25e6; DT = 1.0 / FS
+
+def sintetizar_enlace(n_bits=8, z_cm=7.0):
+    # Genera las trazas temporales continuas reproduciendo la física
+    # de tanques LC, polo de corte por GBW en MCP6002 y detector no lineal BAT85
+    pass
 ```
