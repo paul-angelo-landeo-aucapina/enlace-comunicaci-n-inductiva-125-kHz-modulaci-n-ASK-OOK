@@ -13,6 +13,54 @@
 \usepackage{url}
 \usepackage{microtype}
 \usepackage{tikz}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Configuración de colores para listings
+\definecolor{codegreen}{rgb}{0,0.55,0}
+\definecolor{codegray}{rgb}{0.45,0.45,0.45}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstdefinestyle{customcpp}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=4pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=C++
+}
+
+\lstdefinestyle{custompy}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=4pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=Python
+}
 
 % Directorio de figuras
 \graphicspath{{figuras/}}
@@ -26,27 +74,27 @@
 
 \author{
     \IEEEauthorblockN{
-        [Nombre del Estudiante 1]\IEEEauthorrefmark{1},
-        [Nombre del Estudiante 2]\IEEEauthorrefmark{2},
-        [Nombre del Estudiante 3]\IEEEauthorrefmark{3}
+        {Estudiante 1}\IEEEauthorrefmark{1},
+        {Estudiante 2}\IEEEauthorrefmark{2},
+        {Estudiante 3}\IEEEauthorrefmark{3}
     }
     \IEEEauthorblockA{
         Departamento de Ingeniería Eléctrica y Electrónica\\
         Asignatura: Campos Electromagnéticos / Teoría Electromagnética\\
-        [Nombre de la Universidad / Institución Académica]\\
-        Docente: [Nombre del Profesor / Asesor de Cátedra]\\
-        Correos electrónicos: \IEEEauthorrefmark{1}[email1@institucion.edu], \IEEEauthorrefmark{2}[email2@institucion.edu], \IEEEauthorrefmark{3}[email3@institucion.edu]
+        Universidad / Institución Académica\\
+        Docente: Profesor / Asesor de Cátedra\\
+        Correos electrónicos: \IEEEauthorrefmark{1}{email1@institucion.edu}, \IEEEauthorrefmark{2}{email2@institucion.edu}, \IEEEauthorrefmark{3}{email3@institucion.edu}
     }
 }
 
 \maketitle
 
 \begin{abstract}
-El presente artículo presenta el diseño, simulación, validación analítica y evaluación experimental de un enlace de comunicación inalámbrica de corto alcance fundamentado en inducción magnética cuasiestática a una frecuencia portadora de \SI{125}{\kilo\hertz} mediante modulación digital ASK/OOK. El principio físico del enlace reside en la ley de inducción electromagnética de Faraday-Lenz y la ley de Biot-Savart, acoplando dos bobinas de núcleo de ferrita de \SI{1}{\milli\henry} en régimen reactivo ($r \ll \lambda / 2\pi$), donde la radiación electromagnética de campo lejano es despreciable. Se desarrolla un modelo cuantitativo completo que deduce la ganancia pasiva por resonancia y la ganancia activa de tensión de dos etapas (incorporando las limitaciones impuestas por el producto ganancia-ancho de banda del amplificador operacional), el balance de potencia activa y reactiva de los nodos de transmisión y recepción, y el presupuesto temporal de modulación para codificación Manchester a \SI{250}{\text{bps}}. La implementación física integra osciladores TLC555 modulados por conmutación activa, drivers TC4427A, tanques resonantes sintonizados a \SI{125.04}{\kilo\hertz}, un preamplificador en cascada MCP6002 con masa virtual a \SI{1.65}{\volt}, demodulador de envolvente con desacoplo de continua y conformador con histéresis LM393 conectado a microcontroladores ESP32. Las mediciones en banco de pruebas demuestran la validez del modelo analítico, corroborando la atenuación cúbica ($1/z^3$) y logrando una tasa de error de paquete nula ($\text{PER} = 0$) hasta una distancia máxima de \SI{7.0}{\centi\meter}, limitada físicamente por la caída de tensión directa del diodo Schottky.
+El presente artículo presenta el diseño, simulación, validación analítica y evaluación experimental de un enlace de comunicación inalámbrica de corto alcance fundamentado en inducción magnética cuasiestática a una frecuencia portadora de \SI{125}{\kilo\hertz} mediante modulación digital ASK/OOK. El principio físico del enlace reside en la ley de inducción electromagnética de Faraday-Lenz y la ley de Biot-Savart, acoplando dos bobinas de núcleo de ferrita en régimen reactivo ($r \ll \lambda / 2\pi$), donde la radiación electromagnética de campo lejano es despreciable. Se desarrolla un modelo cuantitativo completo que deduce la ganancia pasiva por resonancia y la ganancia activa de tensión de dos etapas (incorporando las limitaciones impuestas por el producto ganancia-ancho de banda del amplificador operacional), el balance de potencia activa y reactiva de los nodos de transmisión y recepción, y el presupuesto temporal de modulación para codificación Manchester a \SI{250}{\text{bps}}. Se presenta además el análisis forense experimental del fallo observado en laboratorio al emplear un inductor experimental casero (núcleo rectangular de ferrita de $3.5\times 0.5\times 1.3\text{ cm}$ con alambre de cobre de $1.0\text{ mm}$, $N\approx 26-30$ espiras, $L\approx 42.5\,\mu\text{H}$), cuya severa desintonización ($f_0'\approx 607\text{ kHz}$) y reducción del momento dipolar magnético en más de 800 veces causó la anulación de la señal recibida (traza nula en osciloscopio Tektronix a $50\text{ mV/div}$) e incapacidad de superar la barrera de conducción del diodo Schottky BAT85 ($V_F\approx 0.25\text{ V}$). Finalmente, se incorporan como apéndices los firmwares base de transmisión y recepción para microcontrolador ESP32 y los códigos de simulación numérica en Python.
 \end{abstract}
 
 \begin{IEEEkeywords}
-inducción electromagnética, acoplamiento inductivo, ley de Faraday-Lenz, modulación ASK/OOK, RFID LF, presupuesto de enlace, factor de calidad, ganancia-ancho de banda, ESP32.
+inducción electromagnética, acoplamiento inductivo, ley de Faraday-Lenz, modulación ASK/OOK, RFID LF, presupuesto de enlace, factor de calidad, ganancia-ancho de banda, desintonización resonante, ESP32.
 \end{IEEEkeywords}
 
 % ==============================================================================
@@ -68,5 +116,16 @@ inducción electromagnética, acoplamiento inductivo, ley de Faraday-Lenz, modul
 \label{sec:referencias}
 \bibliographystyle{IEEEtran}
 \bibliography{referencias}
+
+% ==============================================================================
+% 7. APÉNDICES / ANEXOS DE CÓDIGO FUENTE
+% ==============================================================================
+\appendices
+
+% Apéndice A: Firmware Base del Enlace Inductivo (ESP32)
+\input{secciones/05_anexo_firmware.tex}
+
+% Apéndice B: Scripts de Modelado y Simulación en Python
+\input{secciones/06_anexo_simulacion.tex}
 
 \end{document}

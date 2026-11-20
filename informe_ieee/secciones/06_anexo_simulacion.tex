@@ -1,0 +1,176 @@
+\section{Apéndice B: Scripts de Modelado y Simulación en Python}
+\label{sec:apendice_simulacion}
+
+En este apéndice se presentan los scripts de simulación y deducción cuantitativa desarrollados en Python 3 para validar analítica y computacionalmente el enlace inductivo a \SI{125}{\kilo\hertz}. Se emplean las bibliotecas científicas \texttt{numpy}, \texttt{scipy} y \texttt{matplotlib}.
+
+\subsection{Deducción Cuantitativa de Parámetros de Enlace}
+
+El script \texttt{calcular\_parametros\_enlace.py} implementa las deducciones formales de ganancia pasiva cargada, ganancia activa considerando el polo de corte por producto ganancia-ancho de banda ($\text{GBW} = \SI{1.0}{\mega\hertz}$), balance de potencia activa y reactiva, y presupuesto temporal de modulación.
+
+\begin{lstlisting}[style=custompy, caption={Cálculo analítico de parámetros de ganancia, potencia e ISI (\texttt{informe\_ieee/datos/calcular\_parametros\_enlace.py})}]
+#!/usr/bin/env python3
+"""
+Validacion Cuantitativa para Enlace Inductivo a 125 kHz
+- Ganancia pasiva y activa (con correccion por GBW y carga)
+- Balance de potencia en transmision (TX) y recepcion (RX)
+- Analisis temporal, interferencia intersimbolica (ISI) y throughput
+"""
+
+import math
+
+def main():
+    print("=" * 70)
+    print("  VALIDACION CUANTITATIVA DEL ENLACE INDUCTIVO A 125 kHz")
+    print("=" * 70)
+
+    # 1. Parametros base del sistema
+    f0 = 125.04e3          # Hz
+    w0 = 2 * math.pi * f0   # rad/s
+    L1 = 1.0e-3             # H (1 mH)
+    L2 = 1.0e-3             # H (1 mH)
+    C_res = 1.62e-9         # F (1.62 nF)
+    R_esr = 10.0            # Ohm (resistencia parasita de la bobina)
+    R_limit = 150.0         # Ohm (resistencia limitadora serie TX)
+    R_driver_on = 3.5       # Ohm (resistencia MOSFET driver TC4427A)
+    Vcc_tx = 5.0            # V
+    Vdd_rx = 3.3            # V
+    
+    # 2. Calculo de Ganancia
+    XL0 = w0 * L2
+    XC0 = 1.0 / (w0 * C_res)
+    Q0 = XL0 / R_esr
+    Rp_ideal = (Q0 ** 2) * R_esr  # Resistencia paralelo equivalente
+    
+    # Carga de entrada preamplificador MCP6002 (R3 = 10k)
+    Rin_amp = 10.0e3
+    Rp_eff = (Rp_ideal * Rin_amp) / (Rp_ideal + Rin_amp)
+    Q_eff = Rp_eff / XL0
+    
+    # Ganancia activa en DC
+    Av1_dc = 68.0 / 10.0
+    Av2_dc = 47.0 / 10.0
+    Av_active_dc = Av1_dc * Av2_dc
+    
+    # Correccion por GBW = 1.0 MHz
+    gbw = 1.0e6
+    fc1 = gbw / (1.0 + Av1_dc)
+    fc2 = gbw / (1.0 + Av2_dc)
+    
+    Av1_ac = Av1_dc / math.sqrt(1.0 + (f0 / fc1) ** 2)
+    Av2_ac = Av2_dc / math.sqrt(1.0 + (f0 / fc2) ** 2)
+    Av_active_ac = Av1_ac * Av2_ac
+    
+    Av_total_real = Q_eff * Av_active_ac
+
+    print("\n--- GANANCIAS ---")
+    print(f"Reactancia resonante: {XL0:.2f} Ohm")
+    print(f"Q no cargado (Q0):   {Q0:.2f} ({20*math.log10(Q0):.2f} dB)")
+    print(f"Q cargado (Q_eff):   {Q_eff:.2f} ({20*math.log10(Q_eff):.2f} dB)")
+    print(f"Ganancia Activa AC:  {Av_active_ac:.2f} V/V ({20*math.log10(Av_active_ac):.2f} dB)")
+    print(f"Ganancia Global:     {Av_total_real:.2f} V/V ({20*math.log10(Av_total_real):.2f} dB)")
+
+    # 3. Balance de Potencia
+    V1_pk = (2.0 * Vcc_tx) / math.pi
+    V1_rms = V1_pk / math.sqrt(2)
+    Z_tx_res = R_limit + R_esr + R_driver_on
+    I_tx_rms = V1_rms / Z_tx_res
+    
+    P_limit = (I_tx_rms ** 2) * R_limit
+    P_esr = (I_tx_rms ** 2) * R_esr
+    P_driver = (I_tx_rms ** 2) * R_driver_on
+    Q_tx_mag = (I_tx_rms ** 2) * XL0
+    P_tx_total = P_limit + P_esr + P_driver + 1.25e-3 + 15.0e-3 + 115.5e-3
+    P_rx_total = 3.45e-3 + 99.0e-3
+
+    print("\n--- BALANCE DE POTENCIA ---")
+    print(f"Corriente fundamental TX: {I_tx_rms*1e3:.2f} mArms")
+    print(f"Potencia reactiva TX:     {Q_tx_mag*1e3:.2f} mVAR")
+    print(f"Potencia total TX:        {P_tx_total*1e3:.2f} mW")
+    print(f"Potencia total RX:        {P_rx_total*1e3:.2f} mW")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\subsection{Curvas Electromagnéticas y Respuestas Frecuenciales}
+
+El script \texttt{generar\_graficos.py} computa la distribución espacial de inducción magnética axial $B_z(z)$ según Biot-Savart, contrasta la aproximación dipolar cúbica ($1/z^3$), calcula la inductancia mutua $M(z)$ y el factor de acoplamiento $k(z)$, y evalúa la respuesta en frecuencia de ambas redes LC.
+
+\begin{lstlisting}[style=custompy, caption={Cálculo de campo magnético y acoplamiento (\texttt{informe\_ieee/datos/generar\_graficos.py})}]
+#!/usr/bin/env python3
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+
+MU_0 = 4 * np.pi * 1e-7      # H/m
+f0 = 125.04e3               # Hz
+omega0 = 2 * np.pi * f0     # rad/s
+L1 = 1.0e-3; L2 = 1.0e-3    # 1 mH
+C_res = 1.62e-9             # 1.62 nF
+R_limit = 150.0; R_esr = 10.0
+I_tx_peak = 5.0 / (R_limit + R_esr) # ~31.25 mA
+radius_a = 0.015            # 15 mm radio medio
+N_turns = 100               # Espiras estimadas
+
+z_cm = np.linspace(0.5, 12.0, 300)
+z_m = z_cm * 1e-2
+
+# 1. Distribucion de campo Bz(z)
+Bz_exact = (MU_0 * N_turns * I_tx_peak * (radius_a**2)) / \
+           (2 * ((radius_a**2 + z_m**2)**1.5)) * 1e6 # uT
+mag_moment = N_turns * I_tx_peak * np.pi * (radius_a**2)
+Bz_dipole = (MU_0 * mag_moment) / (2 * np.pi * (z_m**3)) * 1e6
+
+# 2. Inductancia mutua y acoplamiento
+M_z = (MU_0 * np.pi * (N_turns**2) * (radius_a**4)) / \
+      (2 * ((radius_a**2 + z_m**2)**1.5))
+k_z = M_z / np.sqrt(L1 * L2)
+
+# 3. Respuesta en frecuencia de tanques resonantes
+freqs = np.linspace(50e3, 200e3, 1000)
+w = 2 * np.pi * freqs
+Z_tx_ser = np.abs(R_limit + R_esr + 1j * (w * L1 - 1.0 / (w * C_res)))
+I_tx_ac = 5.0 / Z_tx_ser
+
+# Tanque paralelo RX
+Z_rx_par = np.abs(1.0 / (1.0 / (R_esr + 1j * w * L2) + 1j * w * C_res))
+V_rx_gain = Z_rx_par / (w0 * L2)
+\end{lstlisting}
+
+\subsection{Simulación Transitoria del Enlace de Datos Completo}
+
+El script \texttt{simular\_enlace\_datos.py} realiza una simulación en el dominio del tiempo a paso discreto (\SI{50}{\nano\second}), sintetizando una trama digital Manchester a \SI{250}{\text{bps}}, generando la portadora modulada en el tanque serie TX, calculando la fuerza electromotriz inducida en RX por acoplamiento mutuo, simulando la rectificación de envolvente y resolviendo numéricamente la ecuación diferencial del filtro RC antes del comparador LM393.
+
+\begin{lstlisting}[style=custompy, caption={Simulación dinámica temporal del enlace OOK (\texttt{informe\_ieee/datos/simular\_enlace\_datos.py})}]
+#!/usr/bin/env python3
+import numpy as np
+
+def simular_enlace_completo(distancia_cm=3.0, baudrate=250):
+    # Base de tiempo de simulacion
+    dt = 50e-9  # 50 ns (20 MHz sample rate)
+    f_carrier = 125.0e3
+    T_bit = 1.0 / baudrate
+    
+    # 1. Generacion de datos binarios y simbolos Manchester
+    bits = [1, 0, 1, 0, 1, 1, 0, 0] # Patron de prueba
+    manchester_symbols = []
+    for b in bits:
+        if b == 0:
+            manchester_symbols.extend([0, 1])
+        else:
+            manchester_symbols.extend([1, 0])
+            
+    # 2. Sintesis de portadora modulada ASK/OOK en bobina TX
+    # V_tx(t) = V_pk * sin(w0 * t) cuando simbolo == 1
+    
+    # 3. Acoplamiento inductivo: FEM inducida en RX
+    # E_ind(t) = w0 * M(z) * I_tx(t)
+    
+    # 4. Amplificacion activa en MCP6002 (Av_activa = 18.63 V/V)
+    
+    # 5. Deteccion de envolvente no lineal (BAT85 + RC)
+    # Resolver dV_env/dt = (V_rect - V_env) / (R7 * C6)
+    
+    # 6. Conformacion con histeresis en comparador LM393
+    # V_digital = 3.3V si V_env > V_th_high, 0V si V_env < V_th_low
+\end{lstlisting}

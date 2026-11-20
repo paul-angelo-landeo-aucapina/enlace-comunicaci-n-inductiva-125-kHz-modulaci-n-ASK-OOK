@@ -13,10 +13,54 @@ La contrastación cuantitativa entre las deducciones analíticas, las simulacion
     \item \textbf{Capacitancias Parásitas de Montaje:} El conexionado en protoboard introduce capacitancias parásitas de acoplo (típicamente \SI{2}{\pico\farad} a \SI{5}{\pico\farad} entre pistas adyacentes), afectando la constante de tiempo del detector de envolvente.
 \end{enumerate}
 
+\subsection{Análisis Forense de la Falla del Electroimán Experimental}
+\label{subsec:analisis_forense_electroiman}
+
+El fallo total del enlace observado en el osciloscopio Tektronix (Fig.~\ref{fig:oscilograma_fallo}) durante las pruebas con el electroimán casero de ferrita (Fig.~\ref{fig:bobina_real}) constituye una lección fundamental de diseño electromagnético en alta frecuencia:
+\begin{enumerate}
+    \item \textbf{Imposibilidad de Alcanzar Inductancia de 1 mH con Alambre Grueso:} Para lograr $L = \SI{1.0}{\milli\henry}$ en un núcleo de longitud reducida ($\ell_w = \SI{26}{\milli\meter}$), la ecuación~(\ref{eq:inductancia_mutua}) exige $N \approx 400$ espiras. El uso de alambre de cobre esmaltado de calibre grueso ($d_{\text{cu}} = \SI{1.0}{\milli\meter}$, AWG 18), concebido para electroimanes de alta corriente continua, impuso un límite físico geométrico infranqueable de apenas $26$ espiras por capa.
+    \item \textbf{Colapso de Sintonía y Desplome de la Corriente Primaria:} Al tener $L_{\text{exp}} \approx \SI{42.5}{\micro\henry}$, la frecuencia resonante del tanque serie TX se disparó a \SI{607.4}{\kilo\hertz}. A la portadora fija de \SI{125}{\kilo\hertz}, la reactancia capacitiva ($X_C \approx \SI{785.6}{\ohm}$) dominó ampliamente a la inductiva ($X_L \approx \SI{33.4}{\ohm}$), multiplicando la impedancia de entrada por casi 5 veces ($|Z_{\text{TX}}| \approx \SI{767.0}{\ohm}$) y reduciendo la corriente de excitación en la bobina a solo \SI{4.15}{\milli\ampere}.
+    \item \textbf{Atenuación Cúbica y Anulación del Momento Dipolar:} El momento dipolar magnético transmitido ($m_{\text{exp}} \approx \SI{7.01e-6}{\ampere\meter\squared}$) resultó ser **800 veces inferior** al nominal, lo que atenuó el campo magnético $B_z$ en casi \SI{60}{\deci\bel}.
+    \item \textbf{Cortocircuito Pasivo en el Receptor:} Si el electroimán se instala en el receptor, su baja inductancia ($X_L \approx \SI{33.4}{\ohm}$) actúa como un cortocircuito a masa para la frecuencia de \SI{125}{\kilo\hertz}, disipando cualquier fuerza electromotriz inducida e impidiendo la ganancia resonante ($Q \ll 1$).
+    \item \textbf{Incapacidad de Excitación No Lineal:} La tensión inducida en bornes del receptor fue del orden de sub-milivoltios. Al ser incapaz de vencer la barrera de conducción directa del diodo Schottky BAT85 ($V_F \approx \SI{0.25}{\volt}$), el detector de envolvente permaneció en estado de corte absoluto, manteniendo el Canal 2 del osciloscopio en una línea completamente plana en \SI{0}{\volt}.
+\end{enumerate}
+
+\subsection{Caracterización y Mitigación de Ruido Electromagnético en el Banco Experimental}
+\label{subsec:analisis_ruido}
+
+Durante las pruebas experimentales en laboratorio se identificaron cuatro fuentes críticas de ruido e interferencia que afectaron la estabilidad del enlace:
+
+\begin{enumerate}
+    \item \textbf{Zumbido de Baja Frecuencia (50/60 Hz) y Armónicos de Red:}
+    \begin{itemize}
+        \item \textit{Mecanismo:} Los bucles de masa y el acoplamiento magnético directo con conductores de alimentación de la red eléctrica y balastros de luminarias inducían componentes senoidales de \SI{50}{\hertz} o \SI{60}{\hertz} con amplitudes de hasta \SI{15}{\milli\volt} en el receptor.
+        \item \textit{Mitigación:} El tanque resonante sintonizado a \SI{125}{\kilo\hertz} actuó como un filtro pasabanda natural atenuando la componente de \SI{60}{\hertz} en más de \SI{60}{\deci\bel}. Adicionalmente, el desacoplo AC mediante $C_7$ bloqueó cualquier deriva de muy baja frecuencia.
+    \end{itemize}
+    \item \textbf{Interferencia de Conmutación de Fuentes Conmutadas (SMPS):}
+    \begin{itemize}
+        \item \textit{Mecanismo:} Cargadores USB, fuentes de alimentación de laboratorio y circuitos de conmutación de pantallas operan a frecuencias típicas entre \SI{50}{\kilo\hertz} y \SI{150}{\kilo\hertz}. Estos armónicos caen directamente dentro del ancho de banda del preamplificador MCP6002 ($\text{GBW} = \SI{1.0}{\mega\hertz}$), generando rizado espurio de alta frecuencia.
+        \item \textit{Mitigación:} Se instalaron condensadores cerámicos de desacoplo de \SI{100}{\nano\farad} en paralelo con condensadores electrolíticos de \SI{10}{\micro\farad} lo más próximos posible a los pines de alimentación de cada circuito integrado, junto al blindaje de las sondas pasivas $10\times$.
+    \end{itemize}
+    \item \textbf{Ruido Digital de Conmutación del Microcontrolador ESP32:}
+    \begin{itemize}
+        \item \textit{Mecanismo:} La actividad interna de los núcleos Xtensa a frecuencias de reloj de \SI{80}{\mega\hertz} o \SI{160}{\mega\hertz} provoca transitorios de corriente rápidos ($\sim \text{mA}/\text{ns}$) en los rieles de alimentación de \SI{3.3}{\volt}. Dado que la masa virtual ($V_{\text{ref}} = \SI{1.65}{\volt}$) se deriva de este mismo riel mediante un divisor resistivo ($2 \times \SI{100}{\kilo\ohm}$), el rizado digital modulaba el punto de operación común del preamplificador analógico.
+        \item \textit{Mitigación:} Se robusteció el nodo de masa virtual incorporando un capacitor electrolítico de \SI{1.0}{\micro\farad} en paralelo con un capacitor cerámico de \SI{100}{\nano\farad}, reduciendo la impedancia de la masa virtual a alta frecuencia a una fracción de ohmio y eliminando el crosstalk digital-analógico.
+    \end{itemize}
+    \item \textbf{Rizado Residual de Envolvente y Conmutaciones Espurias (Glitches):}
+    \begin{itemize}
+        \item \textit{Mecanismo:} Tras la rectificación con el diodo BAT85, la constante de tiempo $\tau = R_7 C_6 = \SI{1.0}{\milli\second}$ deja un rizado residual de portadora a \SI{125}{\kilo\hertz}. Al pasar por las transiciones lógicas, este rizado provocaba que la tensión cruzara repetidamente el umbral $V_{\text{th}} = \SI{0.30}{\volt}$ del comparador LM393, generando ráfagas de pulsos parásitos (chatter) que saturaban la rutina de interrupción del ESP32.
+        \item \textit{Mitigación:} Se implementó una solución coordinada en dos niveles:
+        \begin{itemize}
+            \item \textbf{Histéresis Hardware:} Incorporación de una resistencia de realimentación positiva $R_{10} = \SI{1}{\mega\ohm}$ en el comparador LM393, generando una ventana de histéresis de $\Delta V_{\text{hys}} \approx \SI{20}{\milli\volt}$ que impide rebotes durante los cruces lentos.
+            \item \textbf{Filtrado Anti-Glitch por Software:} La rutina de interrupción (\texttt{isr\_rx\_edge}) mide la duración temporal entre flancos descartando automáticamente cualquier pulso con duración menor a \SI{600}{\micro\second} ($< 0.3 \times T_{\text{half}}$).
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
+
 \subsection{Límite Físico de Sensibilidad del Demodulador Pasivo}
 \label{subsec:limite_sensibilidad}
 
-El alcance máximo del enlace (\SI{7.0}{\centi\meter}) no se encuentra restringido por el piso de ruido térmico Johnson-Nyquist del canal, sino por la no linealidad impuesta por la barrera de conducción directa del diodo Schottky BAT85 ($V_F \approx \SI{0.25}{\volt}$):
+El alcance máximo del enlace nominal (\SI{7.0}{\centi\meter}) no se encuentra restringido por el piso de ruido térmico Johnson-Nyquist del canal, sino por la no linealidad impuesta por la barrera de conducción directa del diodo Schottky BAT85 ($V_F \approx \SI{0.25}{\volt}$):
 \begin{itemize}
     \item Para distancias $z > \SI{7.0}{\centi\meter}$, la tensión inducida pico en el tanque es inferior a \SI{15}{\milli\volt}.
     \item Aun amplificada por el MCP6002, la señal rectificada tras el desacoplo AC no suministra suficiente corriente para cargar el capacitor $C_6$ por encima del umbral de decisión del comparador LM393 ($V_{\text{th}} = \SI{0.30}{\volt}$).
@@ -30,6 +74,7 @@ El proyecto permitió validar experimentalmente el diseño y operación de un en
 \begin{enumerate}
     \item \textbf{Comprobación del Régimen Cuasiestático:} Se verificó que en distancias menores a \SI{15}{\centi\meter} ($r \ll \lambda / 2\pi$), el acoplamiento magnético reactivo sigue la ley de Biot-Savart con una atenuación asintótica del tipo $1/z^3$.
     \item \textbf{Eficacia de las Redes Resonantes Asimétricas:} El tanque serie en el transmisor maximizó la corriente en la bobina emisora (\SI{13.77}{\milli\ampere} RMS), mientras que el tanque paralelo en recepción suministró ganancia pasiva de tensión fundamental para elevar la señal por encima del ruido.
+    \item \textbf{Determinación Experimental del Fallo por Desintonización:} Se demostró analítica y experimentalmente que la sustitución de la bobina de \SI{1.0}{\milli\henry} por un electroimán casero de ferrita ($35 \times 5 \times 13\text{ mm}$, $N\approx 26$) colapsa la inductancia a \SI{42.5}{\micro\henry}, desplaza la resonancia a \SI{607}{\kilo\hertz} y reduce el momento dipolar en \SI{-57.9}{\deci\bel}, anulando por completo la tensión recibida.
     \item \textbf{Acondicionamiento Monofuente Robusto:} La combinación de masa virtual a \SI{1.65}{\volt}, preamplificador de bajo ruido MCP6002, desacoplo AC para remoción de continua y conformador con histéresis LM393 aseguró una conmutación limpia sin rebotes parásitos.
     \item \textbf{Desempeño Digital en ESP32:} La codificación Manchester a \SI{250}{\text{bps}} con filtrado anti-glitch por software logró una tasa de error de paquete nula ($\text{PER} = 0$) con verificación CRC-8 hasta una distancia de \SI{7.0}{\centi\meter}.
 \end{enumerate}
