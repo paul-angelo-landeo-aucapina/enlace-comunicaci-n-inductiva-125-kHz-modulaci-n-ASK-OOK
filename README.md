@@ -1,6 +1,6 @@
 # Enlace de Comunicación Inductiva a 125 kHz (ASK/OOK)
 **Diseño, Arquitectura y Estado de Implementación Hardware**
-
+link canva: https://www.canva.com/design/DAHbavFI0ys/1uz9xYoZRRpkaY_bESKJsA/edit
 ---
 
 ## 1. Resumen Ejecutivo del Proyecto
