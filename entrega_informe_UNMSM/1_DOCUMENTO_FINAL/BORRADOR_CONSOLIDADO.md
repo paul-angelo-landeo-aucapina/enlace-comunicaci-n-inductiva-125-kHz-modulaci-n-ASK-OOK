@@ -143,6 +143,14 @@ flowchart LR
     end
 ```
 
+#### Esquemas Circuitales Implementados en KiCad
+
+![Esquema Circuital TX](figuras/circuito_tx_esquematico.png)
+*Figura: Esquema circuital del transmisor (TX): Conector ESP32 DevKitC, oscilador TLC555 gobernado por el pin GPIO18, driver de potencia TC4427A y tanque resonante serie ($R_4 = 150\,\Omega$, $C_6 = 1.62\text{ nF}$, $L_1 = 1.0\text{ mH}$).*
+
+![Esquema Circuital RX](figuras/circuito_rx_esquematico.png)
+*Figura: Esquema circuital del receptor (RX): Divisor de polarización de masa virtual ($1.65\text{ V}$), tanque paralelo sintonizado, preamplificador de dos etapas MCP6002, detector de envolvente con diodo Schottky BAT85 y conformador digital LM393 con histéresis hacia el ESP32.*
+
 #### Lista de Materiales Críticos (BOM Comparativo)
 | Parámetro / Componente | Nominal Diseño | Electroimán Lab. | Unidad |
 | :--- | :---: | :---: | :---: |

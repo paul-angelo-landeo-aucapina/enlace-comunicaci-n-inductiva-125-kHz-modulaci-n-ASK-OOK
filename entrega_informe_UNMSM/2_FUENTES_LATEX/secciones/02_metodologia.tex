@@ -142,6 +142,13 @@ Consta de cuatro bloques funcionales:
     \item \textbf{Tanque Resonante Serie TX:} Resistor de límite $R_{\text{limit}} = \SI{150}{\ohm}$, inductor LF $L_1 = \SI{1.0}{\milli\henry}$ ($R_{\text{ESR}} \approx \SI{10}{\ohm}$) y capacitores C0G en paralelo ($1.5\text{ nF} \parallel 120\text{ pF} = \SI{1.62}{\nano\farad}$).
 \end{enumerate}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\columnwidth]{circuito_tx_esquematico.png}
+\caption{Esquema circuital del transmisor (TX): conector ESP32 DevKitC, oscilador astable TLC555 con modulación OOK por control de pin \texttt{\textasciitilde RST}, driver MOSFET push-pull TC4427A alimentado a \SI{5}{\volt} y red de resonancia serie ($L_1 = \SI{1.0}{\milli\henry}$, $C_6 = 1.5\text{ nF} \parallel 120\text{ pF}$, $R_4 = \SI{150}{\ohm}$).}
+\label{fig:circuito_tx}
+\end{figure}
+
 \subsubsection{Etapa Receptora (RX)}
 Acondiciona señales captadas de milivoltios bajo un riel monofuente de \SI{3.3}{\volt}:
 \begin{enumerate}
@@ -154,6 +161,13 @@ Acondiciona señales captadas de milivoltios bajo un riel monofuente de \SI{3.3}
     \item \textbf{Desacoplo AC y Demodulador de Envolvente:} Red de paso alto ($C_7 = \SI{100}{\nano\farad}$, $R_{12} = \SI{100}{\kilo\ohm}$) que remueve la continua de \SI{1.65}{\volt}. El diodo Schottky BAT85 ($V_F \approx \SI{0.25}{\volt}$) rectifica la señal hacia un filtro pasa-bajos RC ($R_7 = \SI{100}{\kilo\ohm}$, $C_6 = \SI{10}{\nano\farad}$, $\tau = \SI{1.0}{\milli\second}$).
     \item \textbf{Conformador con Histéresis (LM393):} Comparador con umbral $V_{\text{th}} \approx \SI{0.30}{\volt}$ fijado por divisor resistivo e histéresis positiva con $R_{10} = \SI{1}{\mega\ohm}$ para inmunidad contra rebotes parásitos, conectado al pin \texttt{GPIO19} del ESP32.
 \end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\columnwidth]{circuito_rx_esquematico.png}
+\caption{Esquema circuital del receptor (RX): polarización de masa virtual ($V_{\text{ref}} = \SI{1.65}{\volt}$), tanque LC paralelo sintonizado, amplificación en dos etapas inversoras con MCP6002, filtro demodulador de envolvente con diodo Schottky BAT85 y conformador digital LM393 con histéresis.}
+\label{fig:circuito_rx}
+\end{figure}
 
 \begin{table}[htbp]
 \caption{BOM y Comparación de Inductores del Proyecto}

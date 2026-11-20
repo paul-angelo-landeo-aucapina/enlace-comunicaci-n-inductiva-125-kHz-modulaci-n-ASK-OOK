@@ -662,12 +662,17 @@ Underfull \hbox (badness 1715) in paragraph at lines 142--143
 -mi-te
  []
 
+File: figuras//circuito_tx_esquematico.png Graphic file (type bmp)
+<figuras//circuito_tx_esquematico.png>
 [3]
-Overfull \hbox (56.2961pt too wide) in paragraph at lines 162--180
+File: figuras//circuito_rx_esquematico.png Graphic file (type bmp)
+<figuras//circuito_rx_esquematico.png>
+
+Overfull \hbox (56.2961pt too wide) in paragraph at lines 176--194
  [][] 
  []
 
-) (secciones/03_resultados.tex
+) (secciones/03_resultados.tex [4]
 Overfull \hbox (32.15082pt too wide) detected at line 54
 []\OML/cmm/m/it/10 A[] \OT1/cmr/m/n/10 = \OML/cmm/m/it/10 Q[] \OMS/cmsy/m/n/10 
 ^^B \OML/cmm/m/it/10 A[] \OMS/cmsy/m/n/10 ^^Y \OT1/cmr/m/n/10 10\OML/cmm/m/it/1
@@ -676,7 +681,7 @@ Overfull \hbox (32.15082pt too wide) detected at line 54
 T1/cmr/m/n/10 09[] (46\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 20 [])
  []
 
-[4]
+
 Overfull \hbox (70.0413pt too wide) in paragraph at lines 60--71
  [][] 
  []
@@ -726,25 +731,29 @@ Overfull \hbox (33.86665pt too wide) in paragraph at lines 115--125
 
 File: figuras//bobina_electroiman_real.jpg Graphic file (type bmp)
 <figuras//bobina_electroiman_real.jpg>
+[5]
 File: figuras//oscilograma_fallo_tx_rx.jpg Graphic file (type bmp)
 <figuras//oscilograma_fallo_tx_rx.jpg>
-[5]
 File: figuras//campo_b_distancia.pdf Graphic file (type pdf)
 <use figuras//campo_b_distancia.pdf>
 File: figuras//acoplamiento_k_distancia.pdf Graphic file (type pdf)
 <use figuras//acoplamiento_k_distancia.pdf>
 File: figuras//respuesta_frecuencia_tanques.pdf Graphic file (type pdf)
 <use figuras//respuesta_frecuencia_tanques.pdf>
+
+Underfull \vbox (badness 3058) has occurred while \output is active []
+
+ [6]
 File: figuras//sim_montaje_enlace.pdf Graphic file (type pdf)
 <use figuras//sim_montaje_enlace.pdf>
 File: figuras//sim_osc_tx.pdf Graphic file (type pdf)
 <use figuras//sim_osc_tx.pdf>
- [6]
 File: figuras//sim_osc_rx_amp.pdf Graphic file (type pdf)
 <use figuras//sim_osc_rx_amp.pdf>
 File: figuras//sim_osc_demod.pdf Graphic file (type pdf)
 <use figuras//sim_osc_demod.pdf>
- [7]) (secciones/04_discusion_conclusiones.tex [8]
+
+[7]) (secciones/04_discusion_conclusiones.tex [8]
 Underfull \hbox (badness 1789) in paragraph at lines 37--38
 []\T1/ptm/m/it/10 Mitigación: \T1/ptm/m/n/10 El tan-que re-so-nan-te sin-to-ni-
 za-do a
@@ -766,13 +775,12 @@ File: lstlang1.sty 2020/03/24 1.8d listings language file
 )
 (lstmisc.sty
 File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
-) [10] [11]
+) [10] [11] [12]) (secciones/06_anexo_simulacion.tex (lstlang1.sty
+File: lstlang1.sty 2020/03/24 1.8d listings language file
+)
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-)
-(secciones/06_anexo_simulacion.tex [12] (lstlang1.sty
-File: lstlang1.sty 2020/03/24 1.8d listings language file
-) [13]
+ [13]
 Overfull \hbox (2.1281pt too wide) in paragraph at lines 201--201
 \T1/ptm/m/n/8 (\T1/pcr/m/n/8 informe_ieee/datos/generar_oscilogramas_simulados.
 py\T1/ptm/m/n/8 ) 
@@ -798,4 +806,4 @@ LaTeX Info: Redefining \% on input line 11.
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  )
-Output written on main.xdv (14 pages, 329776 bytes).
+Output written on main.xdv (14 pages, 330924 bytes).

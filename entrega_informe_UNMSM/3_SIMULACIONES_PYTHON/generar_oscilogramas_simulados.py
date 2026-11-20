@@ -187,123 +187,133 @@ def sintetizar_enlace(n_bits=8, z_cm=7.0):
     return t, v_gpio18, v_coil_tx, v_tank_rx, v_amp_total, v_env, v_comp_out
 
 # -----------------------------------------------------------------------------
-# 2. FIGURA 7: Oscilograma TX (GPIO18 + Ráfagas 125 kHz)
+# 2. FIGURA 7: Oscilograma TX (GPIO18 + Ráfagas 125 kHz) - Fondo Blanco
 # -----------------------------------------------------------------------------
 def generar_figura_osc_tx(t, v_gpio18, v_coil_tx):
-    print("[2/4] Generando sim_osc_tx...")
+    print("[2/4] Generando sim_osc_tx (Fondo Blanco)...")
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 4.8), dpi=300, sharex=True)
+    fig.patch.set_facecolor("#FFFFFF")
     t_ms = t * 1e3
     t_max = 16.0  # 4 bits (16 ms)
     mask = t_ms <= t_max
 
-    # Fondo estilo retícula de osciloscopio de laboratorio
+    # Fondo blanco y retícula de laboratorio
     for ax in (ax1, ax2):
-        ax.set_facecolor("#0F172A")
-        ax.grid(True, which="both", color="#334155", linestyle=":", linewidth=0.7)
-        ax.axhline(0, color="#475569", linewidth=0.8)
+        ax.set_facecolor("#FFFFFF")
+        ax.grid(True, which="both", color="#E2E8F0", linestyle=":", linewidth=0.9)
+        ax.axhline(0, color="#94A3B8", linewidth=0.8)
+        for spine in ax.spines.values():
+            spine.set_color("#CBD5E1")
 
-    # CH1: Moduladora digital
-    ax1.plot(t_ms[mask], v_gpio18[mask], color="#38BDF8", linewidth=1.6, label="CH1: GPIO18 (Manchester OOK)")
-    ax1.set_ylim(-0.5, 4.2)
-    ax1.set_ylabel("Tensión [V]", color="#F8FAFC", fontsize=9)
-    ax1.tick_params(colors="#94A3B8", labelsize=8)
-    ax1.legend(loc="upper right", facecolor="#1E293B", edgecolor="#475569", labelcolor="#F8FAFC", fontsize=8)
-    ax1.set_title("OSCILOGRAMA SIMULADO TX: MODULADORA DIGITAL Y PORTADORA A 125 kHz", color="#F8FAFC", fontsize=10, fontweight="bold")
-    ax1.text(0.5, 3.5, "CH1: 1.00 V/div  |  $T_{\\text{half}} = 2.0\\text{ ms}$ ($R_b = 250\\text{ bps}$)", color="#38BDF8", fontsize=8)
+    # CH1: Moduladora digital (Azul vibrante)
+    ax1.plot(t_ms[mask], v_gpio18[mask], color="#0284C7", linewidth=1.8, label="CH1: GPIO18 (Manchester OOK)")
+    ax1.set_ylim(-0.5, 4.3)
+    ax1.set_ylabel("Tensión [V]", color="#0F172A", fontsize=9, fontweight="bold")
+    ax1.tick_params(colors="#334155", labelsize=8)
+    ax1.legend(loc="upper right", facecolor="#FFFFFF", edgecolor="#CBD5E1", labelcolor="#0F172A", fontsize=8, framealpha=0.95)
+    ax1.set_title("OSCILOGRAMA SIMULADO TX: MODULADORA DIGITAL Y PORTADORA A 125 kHz", color="#0F172A", fontsize=10, fontweight="bold")
+    ax1.text(0.5, 3.6, "CH1: 1.00 V/div  |  $T_{\\text{half}} = 2.0\\text{ ms}$ ($R_b = 250\\text{ bps}$)", color="#0369A1", fontsize=8, fontweight="bold")
 
-    # CH2: Portadora sobre bobina serie
-    ax2.plot(t_ms[mask], v_coil_tx[mask], color="#F43F5E", linewidth=0.7, label="CH2: $V_{\\text{coil}}$ (Tanque Serie 125 kHz)")
-    ax2.set_ylim(-4.0, 4.0)
-    ax2.set_ylabel("Tensión [V]", color="#F8FAFC", fontsize=9)
-    ax2.set_xlabel("Tiempo [ms]  (Base de Tiempo: 2.00 ms/div)", color="#F8FAFC", fontsize=9)
-    ax2.tick_params(colors="#94A3B8", labelsize=8)
-    ax2.legend(loc="upper right", facecolor="#1E293B", edgecolor="#475569", labelcolor="#F8FAFC", fontsize=8)
-    ax2.text(0.5, 3.1, "CH2: 1.00 V/div  |  $V_{\\text{pp}} \\approx 6.36\\text{ V}$  |  $f_0 = 125.04\\text{ kHz}$", color="#F43F5E", fontsize=8)
+    # CH2: Portadora sobre bobina serie (Rojo carmesí)
+    ax2.plot(t_ms[mask], v_coil_tx[mask], color="#DC2626", linewidth=0.8, label="CH2: $V_{\\text{coil}}$ (Tanque Serie 125 kHz)")
+    ax2.set_ylim(-4.2, 4.2)
+    ax2.set_ylabel("Tensión [V]", color="#0F172A", fontsize=9, fontweight="bold")
+    ax2.set_xlabel("Tiempo [ms]  (Base de Tiempo: 2.00 ms/div)", color="#0F172A", fontsize=9, fontweight="bold")
+    ax2.tick_params(colors="#334155", labelsize=8)
+    ax2.legend(loc="upper right", facecolor="#FFFFFF", edgecolor="#CBD5E1", labelcolor="#0F172A", fontsize=8, framealpha=0.95)
+    ax2.text(0.5, 3.2, "CH2: 1.00 V/div  |  $V_{\\text{pp}} \\approx 6.36\\text{ V}$  |  $f_0 = 125.04\\text{ kHz}$", color="#B91C1C", fontsize=8, fontweight="bold")
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIG_DIR, "sim_osc_tx.png"), dpi=300)
-    plt.savefig(os.path.join(FIG_DIR, "sim_osc_tx.pdf"))
+    plt.savefig(os.path.join(FIG_DIR, "sim_osc_tx.png"), dpi=300, facecolor="#FFFFFF")
+    plt.savefig(os.path.join(FIG_DIR, "sim_osc_tx.pdf"), facecolor="#FFFFFF")
     plt.close(fig)
-    print("   -> Guardado sim_osc_tx.png y .pdf")
+    print("   -> Guardado sim_osc_tx.png y .pdf (Fondo Blanco)")
 
 # -----------------------------------------------------------------------------
-# 3. FIGURA 8: Oscilograma RX (Preamplificación MCP6002)
+# 3. FIGURA 8: Oscilograma RX (Preamplificación MCP6002) - Fondo Blanco
 # -----------------------------------------------------------------------------
 def generar_figura_osc_rx_amp(t, v_tank_rx, v_amp_total):
-    print("[3/4] Generando sim_osc_rx_amp...")
+    print("[3/4] Generando sim_osc_rx_amp (Fondo Blanco)...")
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 4.8), dpi=300, sharex=True)
+    fig.patch.set_facecolor("#FFFFFF")
     t_ms = t * 1e3
     t_max = 16.0
     mask = t_ms <= t_max
 
     for ax in (ax1, ax2):
-        ax.set_facecolor("#0F172A")
-        ax.grid(True, which="both", color="#334155", linestyle=":", linewidth=0.7)
+        ax.set_facecolor("#FFFFFF")
+        ax.grid(True, which="both", color="#E2E8F0", linestyle=":", linewidth=0.9)
+        for spine in ax.spines.values():
+            spine.set_color("#CBD5E1")
 
-    # CH1: Tensión inducida en tanque LC (mV)
-    ax1.plot(t_ms[mask], v_tank_rx[mask] * 1e3, color="#34D399", linewidth=0.8, label="CH1: $V_{\\text{tank}}$ (Tanque LC Paralelo RX)")
-    ax1.set_ylim(-35, 35)
-    ax1.set_ylabel("Tensión [mV]", color="#F8FAFC", fontsize=9)
-    ax1.tick_params(colors="#94A3B8", labelsize=8)
-    ax1.legend(loc="upper right", facecolor="#1E293B", edgecolor="#475569", labelcolor="#F8FAFC", fontsize=8)
-    ax1.set_title("OSCILOGRAMA SIMULADO RX: TENSIÓN INDUCIDA Y PREAMPLIFICACIÓN (MCP6002)", color="#F8FAFC", fontsize=10, fontweight="bold")
-    ax1.text(0.5, 26, "CH1: 10.0 mV/div  |  $V_{\\text{tank,pp}} \\approx 30.2\\text{ mV}_{\\text{pp}}$ ($z = 7.0\\text{ cm}$)", color="#34D399", fontsize=8)
+    # CH1: Tensión inducida en tanque LC (Verde esmeralda)
+    ax1.plot(t_ms[mask], v_tank_rx[mask] * 1e3, color="#059669", linewidth=0.9, label="CH1: $V_{\\text{tank}}$ (Tanque LC Paralelo RX)")
+    ax1.axhline(0, color="#94A3B8", linewidth=0.8)
+    ax1.set_ylim(-38, 38)
+    ax1.set_ylabel("Tensión [mV]", color="#0F172A", fontsize=9, fontweight="bold")
+    ax1.tick_params(colors="#334155", labelsize=8)
+    ax1.legend(loc="upper right", facecolor="#FFFFFF", edgecolor="#CBD5E1", labelcolor="#0F172A", fontsize=8, framealpha=0.95)
+    ax1.set_title("OSCILOGRAMA SIMULADO RX: TENSIÓN INDUCIDA Y PREAMPLIFICACIÓN (MCP6002)", color="#0F172A", fontsize=10, fontweight="bold")
+    ax1.text(0.5, 28, "CH1: 10.0 mV/div  |  $V_{\\text{tank,pp}} \\approx 30.2\\text{ mV}_{\\text{pp}}$ ($z = 7.0\\text{ cm}$)", color="#047857", fontsize=8, fontweight="bold")
 
-    # CH2: Salida preamplificada con masa virtual
-    ax2.plot(t_ms[mask], v_amp_total[mask], color="#FBBF24", linewidth=0.8, label="CH2: $V_{\\text{amp}}$ (Salida Etapa 2 MCP6002)")
-    ax2.axhline(1.65, color="#94A3B8", linestyle="--", linewidth=0.8, label="Masa Virtual (1.65 V)")
-    ax2.set_ylim(1.1, 2.2)
-    ax2.set_ylabel("Tensión [V]", color="#F8FAFC", fontsize=9)
-    ax2.set_xlabel("Tiempo [ms]  (Base de Tiempo: 2.00 ms/div)", color="#F8FAFC", fontsize=9)
-    ax2.tick_params(colors="#94A3B8", labelsize=8)
-    ax2.legend(loc="upper right", facecolor="#1E293B", edgecolor="#475569", labelcolor="#F8FAFC", fontsize=8)
-    ax2.text(0.5, 2.08, "CH2: 200 mV/div  |  $V_{\\text{amp,pp}} \\approx 562\\text{ mV}_{\\text{pp}}$  |  $A_{v,\\text{eff}}(125\\text{k}) = 18.63\\text{ V/V}$", color="#FBBF24", fontsize=8)
+    # CH2: Salida preamplificada con masa virtual (Violeta intenso)
+    ax2.plot(t_ms[mask], v_amp_total[mask], color="#7C3AED", linewidth=0.9, label="CH2: $V_{\\text{amp}}$ (Salida Etapa 2 MCP6002)")
+    ax2.axhline(1.65, color="#64748B", linestyle="--", linewidth=1.0, label="Masa Virtual (1.65 V)")
+    ax2.set_ylim(1.05, 2.25)
+    ax2.set_ylabel("Tensión [V]", color="#0F172A", fontsize=9, fontweight="bold")
+    ax2.set_xlabel("Tiempo [ms]  (Base de Tiempo: 2.00 ms/div)", color="#0F172A", fontsize=9, fontweight="bold")
+    ax2.tick_params(colors="#334155", labelsize=8)
+    ax2.legend(loc="upper right", facecolor="#FFFFFF", edgecolor="#CBD5E1", labelcolor="#0F172A", fontsize=8, framealpha=0.95)
+    ax2.text(0.5, 2.12, "CH2: 200 mV/div  |  $V_{\\text{amp,pp}} \\approx 562\\text{ mV}_{\\text{pp}}$  |  $A_{v,\\text{eff}}(125\\text{k}) = 18.63\\text{ V/V}$", color="#6D28D9", fontsize=8, fontweight="bold")
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIG_DIR, "sim_osc_rx_amp.png"), dpi=300)
-    plt.savefig(os.path.join(FIG_DIR, "sim_osc_rx_amp.pdf"))
+    plt.savefig(os.path.join(FIG_DIR, "sim_osc_rx_amp.png"), dpi=300, facecolor="#FFFFFF")
+    plt.savefig(os.path.join(FIG_DIR, "sim_osc_rx_amp.pdf"), facecolor="#FFFFFF")
     plt.close(fig)
-    print("   -> Guardado sim_osc_rx_amp.png y .pdf")
+    print("   -> Guardado sim_osc_rx_amp.png y .pdf (Fondo Blanco)")
 
 # -----------------------------------------------------------------------------
-# 4. FIGURA 9: Oscilograma Demodulación y Conformación (BAT85 + LM393)
+# 4. FIGURA 9: Oscilograma Demodulación y Conformación (BAT85 + LM393) - Fondo Blanco
 # -----------------------------------------------------------------------------
 def generar_figura_osc_demod(t, v_env, v_comp_out):
-    print("[4/4] Generando sim_osc_demod...")
+    print("[4/4] Generando sim_osc_demod (Fondo Blanco)...")
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 4.8), dpi=300, sharex=True)
+    fig.patch.set_facecolor("#FFFFFF")
     t_ms = t * 1e3
     t_max = 16.0
     mask = t_ms <= t_max
 
     for ax in (ax1, ax2):
-        ax.set_facecolor("#0F172A")
-        ax.grid(True, which="both", color="#334155", linestyle=":", linewidth=0.7)
+        ax.set_facecolor("#FFFFFF")
+        ax.grid(True, which="both", color="#E2E8F0", linestyle=":", linewidth=0.9)
+        for spine in ax.spines.values():
+            spine.set_color("#CBD5E1")
 
-    # CH1: Envolvente rectificada vs umbral
-    ax1.plot(t_ms[mask], v_env[mask], color="#FB923C", linewidth=1.5, label="CH1: Envolvente Filtrada BAT85 ($R_7 C_6$)")
-    ax1.axhline(0.30, color="#F43F5E", linestyle="--", linewidth=1.2, label="Umbral LM393 ($V_{\\text{th}} = 0.30\\text{ V}$)")
-    ax1.axhspan(0.30 - 0.025, 0.30 + 0.025, color="#F43F5E", alpha=0.15, label="Banda Histéresis ($\\pm 25\\text{ mV}$)")
-    ax1.set_ylim(-0.05, 0.65)
-    ax1.set_ylabel("Tensión [V]", color="#F8FAFC", fontsize=9)
-    ax1.tick_params(colors="#94A3B8", labelsize=8)
-    ax1.legend(loc="upper right", facecolor="#1E293B", edgecolor="#475569", labelcolor="#F8FAFC", fontsize=8)
-    ax1.set_title("OSCILOGRAMA SIMULADO: DETECCIÓN DE ENVOLVENTE Y CONFORMACIÓN DIGITAL", color="#F8FAFC", fontsize=10, fontweight="bold")
-    ax1.text(0.5, 0.58, "CH1: 100 mV/div  |  Filtro $\\tau_{\\text{env}} = 1.0\\text{ ms}$  |  Descarga intersimbólica $> 86\\%$", color="#FB923C", fontsize=8)
+    # CH1: Envolvente rectificada vs umbral (Ámbar / Naranja)
+    ax1.plot(t_ms[mask], v_env[mask], color="#D97706", linewidth=1.8, label="CH1: Envolvente Filtrada BAT85 ($R_7 C_6$)")
+    ax1.axhline(0.30, color="#DC2626", linestyle="--", linewidth=1.2, label="Umbral LM393 ($V_{\\text{th}} = 0.30\\text{ V}$)")
+    ax1.axhspan(0.30 - 0.025, 0.30 + 0.025, color="#FCA5A5", alpha=0.35, label="Banda Histéresis ($\\pm 25\\text{ mV}$)")
+    ax1.set_ylim(-0.05, 0.68)
+    ax1.set_ylabel("Tensión [V]", color="#0F172A", fontsize=9, fontweight="bold")
+    ax1.tick_params(colors="#334155", labelsize=8)
+    ax1.legend(loc="upper right", facecolor="#FFFFFF", edgecolor="#CBD5E1", labelcolor="#0F172A", fontsize=8, framealpha=0.95)
+    ax1.set_title("OSCILOGRAMA SIMULADO: DETECCIÓN DE ENVOLVENTE Y CONFORMACIÓN DIGITAL", color="#0F172A", fontsize=10, fontweight="bold")
+    ax1.text(0.5, 0.60, "CH1: 100 mV/div  |  Filtro $\\tau_{\\text{env}} = 1.0\\text{ ms}$  |  Descarga intersimbólica $> 86\\%$", color="#B45309", fontsize=8, fontweight="bold")
 
-    # CH2: Salida conformada hacia ESP32
-    ax2.plot(t_ms[mask], v_comp_out[mask], color="#4ADE80", linewidth=1.6, label="CH2: Salida Digital LM393 -> ESP32 GPIO19")
-    ax2.set_ylim(-0.5, 4.0)
-    ax2.set_ylabel("Tensión [V]", color="#F8FAFC", fontsize=9)
-    ax2.set_xlabel("Tiempo [ms]  (Base de Tiempo: 2.00 ms/div)", color="#F8FAFC", fontsize=9)
-    ax2.tick_params(colors="#94A3B8", labelsize=8)
-    ax2.legend(loc="upper right", facecolor="#1E293B", edgecolor="#475569", labelcolor="#F8FAFC", fontsize=8)
-    ax2.text(0.5, 3.4, "CH2: 1.00 V/div  |  Recuperación Manchester Limpia sin ISI  |  PER = 0", color="#4ADE80", fontsize=8)
+    # CH2: Salida conformada hacia ESP32 (Azul intenso)
+    ax2.plot(t_ms[mask], v_comp_out[mask], color="#2563EB", linewidth=1.8, label="CH2: Salida Digital LM393 -> ESP32 GPIO19")
+    ax2.set_ylim(-0.5, 4.2)
+    ax2.set_ylabel("Tensión [V]", color="#0F172A", fontsize=9, fontweight="bold")
+    ax2.set_xlabel("Tiempo [ms]  (Base de Tiempo: 2.00 ms/div)", color="#0F172A", fontsize=9, fontweight="bold")
+    ax2.tick_params(colors="#334155", labelsize=8)
+    ax2.legend(loc="upper right", facecolor="#FFFFFF", edgecolor="#CBD5E1", labelcolor="#0F172A", fontsize=8, framealpha=0.95)
+    ax2.text(0.5, 3.5, "CH2: 1.00 V/div  |  Recuperación Manchester Limpia sin ISI  |  PER = 0", color="#1D4ED8", fontsize=8, fontweight="bold")
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIG_DIR, "sim_osc_demod.png"), dpi=300)
-    plt.savefig(os.path.join(FIG_DIR, "sim_osc_demod.pdf"))
+    plt.savefig(os.path.join(FIG_DIR, "sim_osc_demod.png"), dpi=300, facecolor="#FFFFFF")
+    plt.savefig(os.path.join(FIG_DIR, "sim_osc_demod.pdf"), facecolor="#FFFFFF")
     plt.close(fig)
-    print("   -> Guardado sim_osc_demod.png y .pdf")
+    print("   -> Guardado sim_osc_demod.png y .pdf (Fondo Blanco)")
 
 # -----------------------------------------------------------------------------
 # Función principal
