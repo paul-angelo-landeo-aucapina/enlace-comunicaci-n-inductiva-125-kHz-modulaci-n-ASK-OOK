@@ -19,6 +19,7 @@ test_*-erc.rpt
 # Build artifacts & binaries
 tests/test_rx_decoder
 tests/test_tx_encoder
+tests/test_imu_telemetry
 *.o
 *.bin
 *.elf

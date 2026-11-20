@@ -148,12 +148,18 @@ Ubicado en [`firmware_tx/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS
   4. **Payload:** $N$ bytes de datos binarios o texto ASCII.
   5. **Verificación:** CRC-8 (Polinomio $0\text{x}07$, Init $0\text{x}00$) calculado sobre $[Longitud] + [Payload]$.
 * **Consola Interactiva USB Serial (115200 baud):**
+  * `imu on|off`: Activa/desactiva la transmisión continua de telemetría inercial del sensor MPU6050 cada $600\text{ ms}$.
+  * `read`: Realiza una lectura instantánea del MPU6050 y reporta aceleraciones, temperatura y ángulos Pitch/Roll en Serial y OLED.
   * `send <texto>`: Transmite una trama arbitraria con el texto especificado.
   * `ping`: Transmite paquete de prueba estándar `"PING"`.
   * `bench <N>`: Emite una ráfaga de $N$ paquetes consecutivos con intervalo de guarda para pruebas de PER (*Packet Error Rate*).
   * `carrier on|off`: Activa la portadora en `GPIO18` de forma continua a $125\text{ kHz}$ para sintonía con osciloscopio en el banco de trabajo.
   * `beacon on|off`: Baliza periódica de telemetría cada $3\text{ s}$.
-  * `status`: Métricas de hardware y paquetes transmitidos.
+  * `status`: Métricas de hardware, periféricos I2C y paquetes transmitidos.
+* **Integración de Sensores y Pantalla (Bus I2C en `GPIO21`/`GPIO22`):**
+  * **Sensor Inercial MPU6050 (`0x68`):** Controlador directo (`mpu6050_driver.cpp`) sin librerías externas pesadas. Lee en ráfaga aceleraciones triaxiales ($\pm 2g$) y temperatura con filtro pasabajos digital de $44\text{ Hz}$. Incluye modo simulado automático si el sensor no está conectado.
+  * **Pantalla OLED SSD1306 (`0x3C`):** Controlador de texto ligero (`oled_display.cpp`) con fuente 5x7 en memoria de programa (sin consumo de buffer dinámico de 1KB). Visualiza en vivo el estado del enlace, secuencia de paquete, componentes de aceleración en $g$, ángulos Pitch/Roll estimados y temperatura.
+  * **Paquete Binario de Telemetría (`imu_telemetry.h`):** Estructura empaquetada de solo $10\text{ bytes}$ (`[0x01] [Seq] [Ax,Ay,Az] [Temp]`), transmitida en $480\text{ ms}$ a $250\text{ bps}$ ($\sim 2\text{ Hz}$).
 
 ### 6.2 Firmware Receptor ESP32 (`firmware_rx/`)
 Ubicado en [`firmware_rx/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/firmware_rx/firmware_rx.ino):
@@ -170,10 +176,14 @@ Ubicado en [`firmware_rx/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS
   3. **Longitud:** 1 byte ($1 \le N \le 32$).
   4. **Carga Útil (Payload):** $N$ bytes.
   5. **Verificación:** CRC-8 (Polinomio $0\text{x}07$).
+* **Decodificador Inteligente de Telemetría IMU:**
+  * Detecta tramas de $10\text{ bytes}$ con cabecera `0x01` (`PKT_TYPE_IMU`).
+  * Desempaqueta las aceleraciones $A_x, A_y, A_z$ y temperatura, calculando en tiempo real los ángulos de inclinación (Pitch y Roll en grados) para visualización inmediata en el monitor serie del receptor.
 
 ### 6.3 Suites de Pruebas Automatizadas y Loopback (`tests/`)
 * [`tests/test_rx_decoder.cpp`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/test_rx_decoder.cpp): Valida la decodificación Manchester, filtrado de transitorios espurios y CRC-8 frente a jitter inyectado.
 * [`tests/test_tx_encoder.cpp`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/test_tx_encoder.cpp): Valida el empaquetado de tramas, codificación de símbolos IEEE 802.3 y ejecuta una prueba **Closed-Loop Loopback** conectando la salida del transmisor a la entrada del receptor con 100% de tramas decodificadas sin error de CRC.
+* [`tests/test_imu_telemetry.cpp`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/test_imu_telemetry.cpp): Valida el empaquetamiento estricto de $10\text{ bytes}$ de la telemetría IMU, cálculos trigonométricos de Pitch y Roll, y transmisión en streaming por loopback cerrado sin error de bit.
 * Compilación y ejecución de toda la suite mediante [`tests/Makefile`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/Makefile): `make test`.
 
 ---

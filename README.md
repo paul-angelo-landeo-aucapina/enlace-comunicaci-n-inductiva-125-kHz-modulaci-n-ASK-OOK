@@ -139,10 +139,16 @@ El enlace cuenta con firmwares modulares para ESP32 DevKitC en C++ / Arduino / E
   * Modulación OOK sobre `GPIO18` (gating pin `~RST` TLC555) a $250\text{ bps}$ Manchester IEEE 802.3.
   * Temporización de microsegundos no bloqueante mediante hardware timer `esp_timer` a $500\text{ Hz}$ ($2000\ \mu\text{s}$).
   * Ensamblador de paquetes con preámbulo, delimitador SFD (`0x7E`), longitud ($1..32$) y CRC-8 (polinomio $0\text{x}07$).
-  * Consola Serial interactiva (115200 baud): `send <msg>`, `ping`, `carrier on|off` (calibración en osciloscopio), `bench <N>`, `beacon on|off` y `status`.
+  * **Telemetría Inercial MPU6050 y Pantalla OLED SSD1306 (I2C en `GPIO21`/`GPIO22`):**
+    * Lectura directa de aceleración triaxial ($\pm 2g$) y temperatura con filtrado DLPF de $44\text{ Hz}$.
+    * Pantalla OLED en tiempo real con estado del transmisor, aceleraciones en $g$, ángulos Pitch/Roll estimados y temperatura local.
+    * Paquete binario compacto de $10\text{ bytes}$ (`[0x01] [Seq] [Ax,Ay,Az] [Temp]`) transmitido en solo $480\text{ ms}$ ($\sim 2\text{ Hz}$).
+    * Fallback automático a simulación armónica si los sensores I2C no se encuentran físicamente conectados.
+  * Consola Serial interactiva (115200 baud): `imu on|off` (streaming inercial), `read`, `send <msg>`, `ping`, `carrier on|off` (calibración en osciloscopio), `bench <N>`, `beacon on|off` y `status`.
 * **Receptor (`firmware_rx/`):**
   * Captura por interrupción de flancos en `GPIO19` desde comparador LM393.
   * Decodificador Manchester con recuperación de reloj, filtrado anti-glitch ($< 600\ \mu\text{s}$), tolerancia a jitter $\pm 25\%$ y timeout de silencio ($14\text{ ms}$).
-  * Verificación CRC-8 y volcado ASCII/HEX por puerto Serial.
+  * Decodificación automática de telemetría IMU de 10 bytes: reporte instantáneo en Serial de $A_x, A_y, A_z$, Pitch, Roll y temperatura.
+  * Verificación CRC-8 y volcado ASCII/HEX para tramas arbitrarias.
 * **Pruebas Automatizadas y Loopback (`tests/`):**
-  * Ejecutables con `make test` desde el directorio [`tests/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/): prueba unitaria de receptor y prueba de loopback cerrado TX $\rightarrow$ RX con 100% de tramas decodificadas sin error.
+  * Ejecutables con `make test` desde el directorio [`tests/`](file:///home/paul/Documents/workfiles/ProyectoCAMPOS/tests/): prueba unitaria de receptor, prueba de loopback cerrado TX $\rightarrow$ RX y prueba de telemetría inercial y cálculo de actitud.

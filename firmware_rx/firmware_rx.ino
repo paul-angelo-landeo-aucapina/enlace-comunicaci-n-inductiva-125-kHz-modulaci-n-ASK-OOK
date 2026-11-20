@@ -17,6 +17,7 @@
 #include "config.h"
 #include "manchester_rx.h"
 #include "packet_parser.h"
+#include "imu_telemetry.h"
 
 // Instantiate decoder and parser
 ManchesterRx rxDecoder;
@@ -97,6 +98,23 @@ void loop() {
                           pkt.received_crc,
                           pkt.calculated_crc,
                           pkt.crc_ok ? "[PASS]" : "[ERROR - CRC MISMATCH]");
+
+            // Check if this is an IMU Telemetry Packet (0x01, 10 bytes)
+            if (pkt.crc_ok && pkt.length == sizeof(ImuTelemetryPacket) && pkt.payload[0] == PKT_TYPE_IMU) {
+                const ImuTelemetryPacket* imu_pkt = reinterpret_cast<const ImuTelemetryPacket*>(pkt.payload);
+                float ax_g = (float)imu_pkt->accel_x_mg / 1000.0f;
+                float ay_g = (float)imu_pkt->accel_y_mg / 1000.0f;
+                float az_g = (float)imu_pkt->accel_z_mg / 1000.0f;
+                float pitch = imuCalculatePitchDeg(imu_pkt->accel_x_mg, imu_pkt->accel_y_mg, imu_pkt->accel_z_mg);
+                float roll  = imuCalculateRollDeg(imu_pkt->accel_y_mg, imu_pkt->accel_z_mg);
+                float temp_c = (float)imu_pkt->temp_cdeg / 100.0f;
+
+                Serial.println(F("  === [DECODED MPU6050 IMU TELEMETRY] ==="));
+                Serial.printf("    Sequence   : #%u\n", (unsigned int)imu_pkt->seq);
+                Serial.printf("    Accel (g)  : X=%+0.3f | Y=%+0.3f | Z=%+0.3f\n", ax_g, ay_g, az_g);
+                Serial.printf("    Attitude   : Pitch=%+0.1f deg | Roll=%+0.1f deg\n", pitch, roll);
+                Serial.printf("    Temperature: %0.2f deg C\n", temp_c);
+            }
 
             // Timing Quality & Link Diagnostics
             RxStats stats = rxDecoder.getStats();
